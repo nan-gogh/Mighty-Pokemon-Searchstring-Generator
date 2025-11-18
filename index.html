@@ -130,12 +130,12 @@ function buildRanges(){
   // Für 2024: Range von days since END bis days since START
   const a24_min = daysSince(EVENT24_END);
   const a24_max = daysSince(EVENT24_START);
-  const range24 = `alter${a24_min}-alter${a24_max}`;
+  const range24 = `alter${a24_min}-${a24_max}`;
 
   // Für 2025 (2 Tage): ebenfalls range (end..start)
   const a25_min = daysSince(EVENT25_END);
   const a25_max = daysSince(EVENT25_START);
-  const range25 = `alter${a25_min}-alter${a25_max}`;
+  const range25 = `alter${a25_min}-${a25_max}`;
 
   return { range24, range25, a24_min, a24_max, a25_min, a25_max };
 }
