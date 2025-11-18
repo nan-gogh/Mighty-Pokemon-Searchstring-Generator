@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mächtige Pokémon – GO Suchstring Generator</title>
+
+<style>
+/* --------------------------------------------------------
+   ░░░ MAIN LIGHT THEME COLORS ░░░
+---------------------------------------------------------*/
+:root {
+    --go-blue: #1b75d0;
+    --go-blue-dark: #145da8;
+    --bg-light: #e6eef7;
+    --card-bg: #ffffff;
+    --text-color: #222;
+    --border: #d4ddea;
+    --textarea-border: #b9c8db;
+    --btn-hover: #145da8;
+}
+
+/* --------------------------------------------------------
+   ░░░ DARK MODE (Automatisch via prefers-color-scheme) ░░░
+---------------------------------------------------------*/
+@media (prefers-color-scheme: dark) {
+    :root {
+        --go-blue: #4a90e2;
+        --go-blue-dark: #3572b5;
+        --bg-light: #0f1724;
+        --card-bg: #1b2636;
+        --text-color: #e6eef7;
+        --border: #314159;
+        --textarea-border: #425b7a;
+        --btn-hover: #2c5e99;
+    }
+}
+
+body {
+    font-family: "Roboto", system-ui, sans-serif;
+    background: var(--bg-light);
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+}
+
+header {
+    background: var(--go-blue);
+    color: white;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+header img {
+    width: 44px;
+    height: 44px;
+}
+
+main {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    border: 2px solid var(--border);
+}
+
+h2 {
+    margin-top: 0;
+    color: var(--go-blue-dark);
+    font-weight: 700;
+}
+
+textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    border: 2px solid var(--textarea-border);
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+
+.btn {
+    background: var(--go-blue);
+    color: white;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 12px;
+    transition: 0.15s;
+}
+
+.btn:hover {
+    background: var(--btn-hover);
+}
+
+select {
+    padding: 10px;
+    border: 2px solid var(--textarea-border);
+    border-radius: 14px;
+    font-size: 1rem;
+    width: 100%;
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <!-- Pokéball Logo (frei, selbst generiert, Base64 eingebettet) -->
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB8ElEQVR4nO3aMW7CMBRE4e0gA1xAE7ABO0ATsAE7QBO0ATsAFdSZciKHjYFvJsnM1279kZyyv8l+ShVYJKmjGkrgekeqODyFrmNgt59qgm7wT+Y34C17/sflSXqAgAAAAAAAAAAAOCJp3aoQKjxSmU4J4ym8XkqvhBN4Fr/EsuXzuOqxXgHG2s3xPr6Z1v8XK2EafNQkXz5F81K4Zb5pnsxHWtHqJ3bBnm1pH6kNtC2jWQH2y8n8We6pCchX2W0azGB9q2ngZ5N9G8J7j+r6SppLr3coWvYe7dS/3YB1ptzYfP6miXiu6FD7U9Y9IuuvJ5sfqt+jGfRmpPqVW6t4FG0WVa0J3bb7LLk7o3VszTf9t2aD69EM0vae2dLrBvS6jb5tU0qcYF8Z9Zbd+WeCz6q9aW6rTbfh+I1sZ9YOfvCy9H6XqH1brtNtr9zO6tabx1hX1q/9r+Kc8KC3WHr0ZWw1ar9q3gEAAAAAAAAAAABgH/0D74+MwoZXYd4AAAAASUVORK5CYII="/>
+    <div>Mächtige Pokémon – Suchstring Generator</div>
+</header>
+
+<main>
+
+<div class="card">
+    <h2>Filter-Auswahl</h2>
+    <p>Wähle, welche mächtigen Pokémon in den Suchstring aufgenommen werden sollen:</p>
+    <select id="mode" onchange="updateAll()">
+        <option value="all">Alle (2024 + 2025)</option>
+        <option value="2024">Nur Naturzone 2024</option>
+        <option value="2025">Nur Naturzone 2025</option>
+    </select>
+</div>
+
+<div class="card">
+    <h2>Aktuelle Alter-Werte</h2>
+    <p id="alter2024"></p>
+    <p id="alter2025"></p>
+</div>
+
+<div class="card">
+    <h2>Generierter Suchstring</h2>
+    <textarea id="output"></textarea>
+    <button class="btn" onclick="copyText()">In die Zwischenablage kopieren</button>
+</div>
+
+</main>
+
+<script>
+/* --- Mighty Pokémon Sets --- */
+const mighty2024 = [
+    "018","076","130","405","545","596","697","748",
+    "003","062","149","160","466","473","604","691"
+];
+
+const mighty2025 = [
+    "040","248","303","359","623","858","862","908",
+    "210","229","282","430","445","452","461","480-482",
+    "110","38","78"
+];
+
+/* Regionalformen */
+const regionals = {
+    "38":"alola",
+    "110":"galar",
+    "78":"galar"
+};
+
+/* Event Dates */
+const event2024 = new Date("2024-11-23");
+const event2025 = new Date("2025-11-15");
+
+function calculateAlter(date){
+    return Math.floor((new Date() - date) / (1000*60*60*24));
+}
+
+function buildString(mode){
+    let list = [];
+
+    if(mode === "all" || mode === "2024") list.push(...mighty2024);
+    if(mode === "all" || mode === "2025") list.push(...mighty2025);
+
+    if(list.includes("38")) list.push("38","alola");
+    if(list.includes("110")) list.push("110","galar");
+    if(list.includes("78")) list.push("78","galar");
+
+    const age24 = calculateAlter(event2024);
+    const age25 = calculateAlter(event2025);
+
+    const filter24 = `alter${age24-2}-alter${age24}`;
+    const filter25 = `alter${age25-2}`;
+
+    let filter = [];
+
+    if(mode === "all" || mode === "2024") filter.push(filter24);
+    if(mode === "all" || mode === "2025") filter.push(filter25);
+
+    return list.join(",") + "&" + filter.join(",");
+}
+
+function updateAll(){
+    const age24 = calculateAlter(event2024);
+    const age25 = calculateAlter(event2025);
+
+    document.getElementById("alter2024").innerText =
+        "Naturzone 2024: alter" + (age24-2) + "–alter" + age24;
+    document.getElementById("alter2025").innerText =
+        "Naturzone 2025: alter" + (age25-2);
+
+    const mode = document.getElementById("mode").value;
+    document.getElementById("output").value = buildString(mode);
+}
+
+/* ---------------------------
+   Update Alter + Copy
+----------------------------*/
+function copyText(){
+    updateAll();  // Neues Alter berechnen
+    navigator.clipboard.writeText(
+        document.getElementById("output").value
+    );
+}
+
+updateAll();
+</script>
+
+</body>
+</html>
