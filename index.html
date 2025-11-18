@@ -6,26 +6,15 @@
 <title>Mächtige Pokémon – Suchstring Generator (dynamisch)</title>
 <style>
 :root{
-  --go-blue:#1b75d0;
-  --go-blue-dark:#145da8;
-  --bg:#e6eef7;
-  --card:#fff;
-  --text:#222;
-  --border:#d4ddea;
-  --muted:#556;
-  --btn-hover:#145da8;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --go-blue:#4a90e2;
-    --go-blue-dark:#3572b5;
-    --bg:#0f1724;
-    --card:#12202b;
-    --text:#e6eef7;
-    --border:#314159;
-    --muted:#aab;
-    --btn-hover:#2c5e99;
-  }
+  /* Always use a dark/grey color scheme */
+  --go-blue:#4a90e2;
+  --go-blue-dark:#3572b5;
+  --bg:#0f1724;
+  --card:#12202b;
+  --text:#e6eef7;
+  --border:#314159;
+  --muted:#aab;
+  --btn-hover:#2c5e99;
 }
 html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
 body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
@@ -56,7 +45,7 @@ textarea{width:100%;min-height:160px;padding:12px;border-radius:12px;border:2px 
   <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB8ElEQVR4nO3aMW7CMBRE4e0gA1xAE7ABO0ATsAE7QBO0ATsAFdSZciKHjYFvJsnM1279kZyyv8l+ShVYJKmjGkrgekeqODyFrmNgt59qgm7wT+Y34C17/sflSXqAgAAAAAAAAAAAOCJp3aoQKjxSmU4J4ym8XkqvhBN4Fr/EsuXzuOqxXgHG2s3xPr6Z1v8XK2EafNQkXz5F81K4Zb5pnsxHWtHqJ3bBnm1pH6kNtC2jWQH2y8n8We6pCchX2W0azGB9q2ngZ5N9G8J7j+r6SppLr3coWvYe7dS/3YB1ptzYfP6miXiu6FD7U9Y9IuuvJ5sfqt+jGfRmpPqVW6t4FG0WVa0J3bb7LLk7o3VszTf9t2aD69EM0vae2dLrBvS6jb5tU0qcYF8Z9Zbd+WeCz6q9aW6rTbfh+I1sZ9YOfvCy9H6XqH1brtNtr9zO6tabx1hX1q/9r+Kc8KC3WHr0ZWw1ar9q3gEAAAAAAAAAAABgH/0D74+MwoZXYd4AAAAASUVORK5CYII=" alt="Pokémark"/>
   <div>
     <h1 style="font-size:1rem;margin:0">Mächtige Pokémon – Suchstring Generator</h1>
-    <div class="p-muted small">Dynamisch aktualisierte alter-Filter • Dark Mode automatisch</div>
+    <div class="p-muted small">Die Suchleiste von Pokémon GO erlaubt nur einfache AND-Verknüpfungen (&) erlaubt und unterstützt keine Klammern oder OR-Logik. Jede Kombination aus Pokémon, Form und Fangalter muss daher einzeln aufgelistet werden, damit alle mächtigen Pokémon eines Events korrekt erfasst werden.</div>
   </div>
 </header>
 
@@ -92,8 +81,7 @@ textarea{width:100%;min-height:160px;padding:12px;border-radius:12px;border:2px 
     <textarea id="output" readonly></textarea>
     <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
       <button class="btn" onclick="copyAndNotify()">In die Zwischenablage kopieren</button>
-      <button class="btn" style="background:#6b7280" onclick="copyCompact()">Kompakt kopieren</button>
-      <div class="note" style="align-self:center">Kompakt = kürzeste funktionale Version (ohne DNF-Wiederholungen)</div>
+      <!-- Compact mode removed: single full copy button kept -->
     </div>
     <div class="footer">Tipp: Füge den String in die Pokémon GO Suchleiste ein.</div>
   </div>
@@ -112,17 +100,18 @@ const TEMPLATE = `018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,69
 /* ------------------------------
    Eventdaten (UTC-local dates)
    ------------------------------ */
-const EVENT24_START = new Date("2024-11-23T00:00:00");
-const EVENT24_END   = new Date("2024-11-24T23:59:59");
+// Use UTC construction to avoid relying on browser-specific parsing/local-time assumptions
+const EVENT24_START = new Date(Date.UTC(2024, 10, 23, 0, 0, 0)); // 2024-11-23 00:00:00 UTC
+const EVENT24_END   = new Date(Date.UTC(2024, 10, 24, 23, 59, 59)); // 2024-11-24 23:59:59 UTC
 
-const EVENT25_START = new Date("2025-11-15T00:00:00");
-const EVENT25_END   = new Date("2025-11-16T23:59:59");
+const EVENT25_START = new Date(Date.UTC(2025, 10, 15, 0, 0, 0)); // 2025-11-15 00:00:00 UTC
+const EVENT25_END   = new Date(Date.UTC(2025, 10, 16, 23, 59, 59)); // 2025-11-16 23:59:59 UTC
 
 /* helper: ganze Tage Unterschied (floor) */
 function daysSince(date){
-  const now = new Date();
+  // Use epoch ms to avoid subtle timezone parsing issues — robust across environments
   const msPerDay = 1000*60*60*24;
-  return Math.floor((now - date)/msPerDay);
+  return Math.floor((Date.now() - date.getTime())/msPerDay);
 }
 
 /* baut die beiden Range-Strings */
@@ -155,31 +144,29 @@ function generateFinalString(mode){
   // We'll still allow mode to control which age filters to include in the output.
   let out = tpl.replaceAll("{{A24}}", range24).replaceAll("{{A25}}", range25);
 
+  // If the user wants only one event, remove the other event's range tokens (literal strings).
   if(mode === "2024"){
-    // Remove occurrences where {{A25}} was used alone at end - replace range25 with nothing and tidy up double commas/ampersands.
-    out = out.replaceAll(range25, '').replaceAll(',,', ',').replaceAll(',&', '&').replaceAll('&,', '&');
+    out = out.replaceAll(range25, '');
   } else if(mode === "2025"){
-    out = out.replaceAll(range24, '').replaceAll(',,', ',').replaceAll(',&', '&').replaceAll('&,', '&');
+    out = out.replaceAll(range24, '');
   }
 
-  // Trim leading/trailing commas/spaces
-  out = out.replace(/(^,|,$)/g, '');
-  out = out.replace(/\s+/g,' ');
+  // Cleanup: split on '&' (AND-groups), tidy each group, drop empty groups, then rejoin.
+  const cleaned = out.split('&').map(g => {
+    // normalize whitespace
+    g = g.trim();
+    // collapse multiple commas into one
+    g = g.replace(/,+/g, ',');
+    // remove any consecutive commas left at edges
+    g = g.replace(/^,|,$/g, '');
+    return g;
+  }).filter(g => g.length > 0).join('&');
 
-  return out;
+  // Final trimming of stray commas/spaces
+  return cleaned.replace(/(^,|,$)/g, '').replace(/\s+/g, ' ');
 }
 
-/* Kompakte (kürzeste funktionale) Version generator - kept consistent with earlier shortest string */
-function buildCompact(mode){
-  // base sets
-  const base24 = "018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691";
-  const base25 = "40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,78,38,110";
-
-  const { range24, range25 } = buildRanges();
-  if(mode === "2024") return `${base24}&${range24}`;
-  if(mode === "2025") return `${base25.replaceAll(',78,38,110','78&galar,38&alola,110&galar')}&${range25}`;
-  return `${base24}&${range24},${base25.replaceAll(',78,38,110','78&galar,38&alola,110&galar')}&${range25}`;
-}
+/* compact mode removed */
 
 /* updates UI preview textarea and ranges */
 function renderPreview(){
@@ -214,14 +201,7 @@ function copyAndNotify(){
   renderPreview();
 }
 
-/* kompakt kopieren (kürzeste Version) */
-function copyCompact(){
-  const mode = document.getElementById('mode').value;
-  const compact = buildCompact(mode);
-  navigator.clipboard.writeText(compact).then(()=> showToast('✓ Kompakt kopiert!'),
-    ()=> showToast('Kopieren fehlgeschlagen'));
-  renderPreview();
-}
+/* compact copy removed */
 
 /* Initial render */
 renderPreview();
