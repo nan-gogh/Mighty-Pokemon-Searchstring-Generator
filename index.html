@@ -1,236 +1,236 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mächtige Pokémon – GO Suchstring Generator</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mächtige Pokémon – Suchstring Generator (dynamisch)</title>
 <style>
-/* --------------------------------------------------------
-   ░░░ MAIN LIGHT THEME COLORS ░░░
----------------------------------------------------------*/
-:root {
-    --go-blue: #1b75d0;
-    --go-blue-dark: #145da8;
-    --bg-light: #e6eef7;
-    --card-bg: #ffffff;
-    --text-color: #222;
-    --border: #d4ddea;
-    --textarea-border: #b9c8db;
-    --btn-hover: #145da8;
+:root{
+  --go-blue:#1b75d0;
+  --go-blue-dark:#145da8;
+  --bg:#e6eef7;
+  --card:#fff;
+  --text:#222;
+  --border:#d4ddea;
+  --muted:#556;
+  --btn-hover:#145da8;
 }
-
-/* --------------------------------------------------------
-   ░░░ DARK MODE (Automatisch via prefers-color-scheme) ░░░
----------------------------------------------------------*/
-@media (prefers-color-scheme: dark) {
-    :root {
-        --go-blue: #4a90e2;
-        --go-blue-dark: #3572b5;
-        --bg-light: #0f1724;
-        --card-bg: #1b2636;
-        --text-color: #e6eef7;
-        --border: #314159;
-        --textarea-border: #425b7a;
-        --btn-hover: #2c5e99;
-    }
+@media (prefers-color-scheme: dark){
+  :root{
+    --go-blue:#4a90e2;
+    --go-blue-dark:#3572b5;
+    --bg:#0f1724;
+    --card:#12202b;
+    --text:#e6eef7;
+    --border:#314159;
+    --muted:#aab;
+    --btn-hover:#2c5e99;
+  }
 }
-
-body {
-    font-family: "Roboto", system-ui, sans-serif;
-    background: var(--bg-light);
-    margin: 0;
-    padding: 0;
-    color: var(--text-color);
-}
-
-header {
-    background: var(--go-blue);
-    color: white;
-    padding: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-}
-
-header img {
-    width: 44px;
-    height: 44px;
-}
-
-main {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
-}
-
-.card {
-    background: var(--card-bg);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-    border: 2px solid var(--border);
-}
-
-h2 {
-    margin-top: 0;
-    color: var(--go-blue-dark);
-    font-weight: 700;
-}
-
-textarea {
-    width: 100%;
-    height: 150px;
-    padding: 10px;
-    border-radius: 14px;
-    font-size: 0.95rem;
-    border: 2px solid var(--textarea-border);
-    background: var(--card-bg);
-    color: var(--text-color);
-}
-
-.btn {
-    background: var(--go-blue);
-    color: white;
-    padding: 12px 18px;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-top: 12px;
-    transition: 0.15s;
-}
-
-.btn:hover {
-    background: var(--btn-hover);
-}
-
-select {
-    padding: 10px;
-    border: 2px solid var(--textarea-border);
-    border-radius: 14px;
-    font-size: 1rem;
-    width: 100%;
-    background: var(--card-bg);
-    color: var(--text-color);
-}
+html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+header{background:var(--go-blue);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 3px 10px rgba(0,0,0,0.12)}
+header img{width:44px;height:44px}
+.container{max-width:980px;margin:20px auto;padding:12px}
+.card{background:var(--card);border-radius:12px;padding:18px;margin-bottom:16px;border:2px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+h1{margin:0;font-size:1.05rem}
+h2{margin:0 0 8px 0;color:var(--go-blue-dark)}
+.p-muted{color:var(--muted);margin:0 0 8px 0;font-size:0.95rem}
+select{width:100%;padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:1rem}
+textarea{width:100%;min-height:160px;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--card);color:var(--text);font-family:monospace;resize:vertical}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.col{flex:1;min-width:140px}
+.btn{background:var(--go-blue);color:white;padding:10px 14px;border:none;border-radius:12px;font-weight:600;cursor:pointer}
+.btn:active{transform:translateY(1px)}
+.small{font-size:0.9rem}
+.note{font-size:0.9rem;color:var(--muted);margin-top:8px}
+.toast{position:fixed;right:20px;bottom:20px;background:#2b8a3e;color:white;padding:10px 14px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.2);display:none}
+.footer{font-size:0.85rem;color:var(--muted);text-align:center;margin-top:6px}
+@media (max-width:640px){ header{padding:12px} .container{padding:8px} }
 </style>
 </head>
-
 <body>
 
 <header>
-    <!-- Pokéball Logo (frei, selbst generiert, Base64 eingebettet) -->
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB8ElEQVR4nO3aMW7CMBRE4e0gA1xAE7ABO0ATsAE7QBO0ATsAFdSZciKHjYFvJsnM1279kZyyv8l+ShVYJKmjGkrgekeqODyFrmNgt59qgm7wT+Y34C17/sflSXqAgAAAAAAAAAAAOCJp3aoQKjxSmU4J4ym8XkqvhBN4Fr/EsuXzuOqxXgHG2s3xPr6Z1v8XK2EafNQkXz5F81K4Zb5pnsxHWtHqJ3bBnm1pH6kNtC2jWQH2y8n8We6pCchX2W0azGB9q2ngZ5N9G8J7j+r6SppLr3coWvYe7dS/3YB1ptzYfP6miXiu6FD7U9Y9IuuvJ5sfqt+jGfRmpPqVW6t4FG0WVa0J3bb7LLk7o3VszTf9t2aD69EM0vae2dLrBvS6jb5tU0qcYF8Z9Zbd+WeCz6q9aW6rTbfh+I1sZ9YOfvCy9H6XqH1brtNtr9zO6tabx1hX1q/9r+Kc8KC3WHr0ZWw1ar9q3gEAAAAAAAAAAABgH/0D74+MwoZXYd4AAAAASUVORK5CYII="/>
-    <div>Mächtige Pokémon – Suchstring Generator</div>
+  <!-- simple pokeball-style mark (base64 tiny PNG) -->
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB8ElEQVR4nO3aMW7CMBRE4e0gA1xAE7ABO0ATsAE7QBO0ATsAFdSZciKHjYFvJsnM1279kZyyv8l+ShVYJKmjGkrgekeqODyFrmNgt59qgm7wT+Y34C17/sflSXqAgAAAAAAAAAAAOCJp3aoQKjxSmU4J4ym8XkqvhBN4Fr/EsuXzuOqxXgHG2s3xPr6Z1v8XK2EafNQkXz5F81K4Zb5pnsxHWtHqJ3bBnm1pH6kNtC2jWQH2y8n8We6pCchX2W0azGB9q2ngZ5N9G8J7j+r6SppLr3coWvYe7dS/3YB1ptzYfP6miXiu6FD7U9Y9IuuvJ5sfqt+jGfRmpPqVW6t4FG0WVa0J3bb7LLk7o3VszTf9t2aD69EM0vae2dLrBvS6jb5tU0qcYF8Z9Zbd+WeCz6q9aW6rTbfh+I1sZ9YOfvCy9H6XqH1brtNtr9zO6tabx1hX1q/9r+Kc8KC3WHr0ZWw1ar9q3gEAAAAAAAAAAABgH/0D74+MwoZXYd4AAAAASUVORK5CYII=" alt="Pokémark"/>
+  <div>
+    <h1 style="font-size:1rem;margin:0">Mächtige Pokémon – Suchstring Generator</h1>
+    <div class="p-muted small">Dynamisch aktualisierte alter-Filter • Dark Mode automatisch</div>
+  </div>
 </header>
 
-<main>
+<main class="container">
 
-<div class="card">
-    <h2>Filter-Auswahl</h2>
-    <p>Wähle, welche mächtigen Pokémon in den Suchstring aufgenommen werden sollen:</p>
-    <select id="mode" onchange="updateAll()">
-        <option value="all">Alle (2024 + 2025)</option>
-        <option value="2024">Nur Naturzone 2024</option>
-        <option value="2025">Nur Naturzone 2025</option>
+  <div class="card">
+    <h2>Auswahl</h2>
+    <p class="p-muted">Wähle, welche Sets du möchtest (Textarea zeigt aktuell den resultierenden String).</p>
+    <select id="mode" onchange="renderPreview()">
+      <option value="all">Alle (2024 + 2025)</option>
+      <option value="2024">Nur Naturzone 2024</option>
+      <option value="2025">Nur Naturzone 2025</option>
     </select>
-</div>
+    <div class="note">Beim Kopieren werden die Platzhalter mit aktuellen <code>alter</code>-Werten ersetzt.</div>
+  </div>
 
-<div class="card">
-    <h2>Aktuelle Alter-Werte</h2>
-    <p id="alter2024"></p>
-    <p id="alter2025"></p>
-</div>
+  <div class="card">
+    <h2>Aktuelle Alter-Ranges</h2>
+    <div class="row">
+      <div class="col">
+        <strong>Naturzone 2024 (23.–24.11.2024)</strong>
+        <div id="range24" class="note">—</div>
+      </div>
+      <div class="col">
+        <strong>Naturzone 2025 (15.–16.11.2025)</strong>
+        <div id="range25" class="note">—</div>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-    <h2>Generierter Suchstring</h2>
-    <textarea id="output"></textarea>
-    <button class="btn" onclick="copyText()">In die Zwischenablage kopieren</button>
-</div>
+  <div class="card">
+    <h2>Suchstring (Vorschau)</h2>
+    <textarea id="output" readonly></textarea>
+    <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn" onclick="copyAndNotify()">In die Zwischenablage kopieren</button>
+      <button class="btn" style="background:#6b7280" onclick="copyCompact()">Kompakt kopieren</button>
+      <div class="note" style="align-self:center">Kompakt = kürzeste funktionale Version (ohne DNF-Wiederholungen)</div>
+    </div>
+    <div class="footer">Tipp: Füge den String in die Pokémon GO Suchleiste ein.</div>
+  </div>
 
 </main>
 
+<div id="toast" class="toast">✓ Kopiert!</div>
+
 <script>
-/* --- Mighty Pokémon Sets --- */
-const mighty2024 = [
-    "018","076","130","405","545","596","697","748",
-    "003","062","149","160","466","473","604","691"
-];
+/* ------------------------------
+   TEMPLATE (dein langer Megastring)
+   Platzhalter: {{A24}} und {{A25}}
+   ------------------------------ */
+const TEMPLATE = `018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,{{A25}}& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola& {{A24}},{{A25}}`;
 
-const mighty2025 = [
-    "040","248","303","359","623","858","862","908",
-    "210","229","282","430","445","452","461","480-482",
-    "110","38","78"
-];
+/* ------------------------------
+   Eventdaten (UTC-local dates)
+   ------------------------------ */
+const EVENT24_START = new Date("2024-11-23T00:00:00");
+const EVENT24_END   = new Date("2024-11-24T23:59:59");
 
-/* Regionalformen */
-const regionals = {
-    "38":"alola",
-    "110":"galar",
-    "78":"galar"
-};
+const EVENT25_START = new Date("2025-11-15T00:00:00");
+const EVENT25_END   = new Date("2025-11-16T23:59:59");
 
-/* Event Dates */
-const event2024 = new Date("2024-11-23");
-const event2025 = new Date("2025-11-15");
-
-function calculateAlter(date){
-    return Math.floor((new Date() - date) / (1000*60*60*24));
+/* helper: ganze Tage Unterschied (floor) */
+function daysSince(date){
+  const now = new Date();
+  const msPerDay = 1000*60*60*24;
+  return Math.floor((now - date)/msPerDay);
 }
 
-function buildString(mode){
-    let list = [];
+/* baut die beiden Range-Strings */
+function buildRanges(){
+  // Für 2024: Range von days since END bis days since START
+  const a24_min = daysSince(EVENT24_END);
+  const a24_max = daysSince(EVENT24_START);
+  const range24 = `alter${a24_min}-alter${a24_max}`;
 
-    if(mode === "all" || mode === "2024") list.push(...mighty2024);
-    if(mode === "all" || mode === "2025") list.push(...mighty2025);
+  // Für 2025 (2 Tage): ebenfalls range (end..start)
+  const a25_min = daysSince(EVENT25_END);
+  const a25_max = daysSince(EVENT25_START);
+  const range25 = `alter${a25_min}-alter${a25_max}`;
 
-    if(list.includes("38")) list.push("38","alola");
-    if(list.includes("110")) list.push("110","galar");
-    if(list.includes("78")) list.push("78","galar");
-
-    const age24 = calculateAlter(event2024);
-    const age25 = calculateAlter(event2025);
-
-    const filter24 = `alter${age24-2}-alter${age24}`;
-    const filter25 = `alter${age25-2}`;
-
-    let filter = [];
-
-    if(mode === "all" || mode === "2024") filter.push(filter24);
-    if(mode === "all" || mode === "2025") filter.push(filter25);
-
-    return list.join(",") + "&" + filter.join(",");
+  return { range24, range25, a24_min, a24_max, a25_min, a25_max };
 }
 
-function updateAll(){
-    const age24 = calculateAlter(event2024);
-    const age25 = calculateAlter(event2025);
+/* ersetzt Platzhalter und liefert finalen String */
+function generateFinalString(mode){
+  const { range24, range25 } = buildRanges();
 
-    document.getElementById("alter2024").innerText =
-        "Naturzone 2024: alter" + (age24-2) + "–alter" + age24;
-    document.getElementById("alter2025").innerText =
-        "Naturzone 2025: alter" + (age25-2);
+  // Depending on mode provide correct template subset:
+  // We still want to support "all", "2024", "2025"
+  const tpl = TEMPLATE;
 
-    const mode = document.getElementById("mode").value;
-    document.getElementById("output").value = buildString(mode);
+  // For "2024" only: remove all parts that rely solely on 2025.
+  // Simplest approach: generate and then filter: if mode === '2024' remove all occurrences of segments that were
+  // intended only for 2025. But the TEMPLATE is built as large DNF; safest is to keep full template but at preview we can
+  // show only relevant ranges. Pokémon GO will ignore irrelevant age filters anyway.
+  // We'll still allow mode to control which age filters to include in the output.
+  let out = tpl.replaceAll("{{A24}}", range24).replaceAll("{{A25}}", range25);
+
+  if(mode === "2024"){
+    // Remove occurrences where {{A25}} was used alone at end - replace range25 with nothing and tidy up double commas/ampersands.
+    out = out.replaceAll(range25, '').replaceAll(',,', ',').replaceAll(',&', '&').replaceAll('&,', '&');
+  } else if(mode === "2025"){
+    out = out.replaceAll(range24, '').replaceAll(',,', ',').replaceAll(',&', '&').replaceAll('&,', '&');
+  }
+
+  // Trim leading/trailing commas/spaces
+  out = out.replace(/(^,|,$)/g, '');
+  out = out.replace(/\s+/g,' ');
+
+  return out;
 }
 
-/* ---------------------------
-   Update Alter + Copy
-----------------------------*/
-function copyText(){
-    updateAll();  // Neues Alter berechnen
-    navigator.clipboard.writeText(
-        document.getElementById("output").value
-    );
+/* Kompakte (kürzeste funktionale) Version generator - kept consistent with earlier shortest string */
+function buildCompact(mode){
+  // base sets
+  const base24 = "018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691";
+  const base25 = "40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,78,38,110";
+
+  const { range24, range25 } = buildRanges();
+  if(mode === "2024") return `${base24}&${range24}`;
+  if(mode === "2025") return `${base25.replaceAll(',78,38,110','78&galar,38&alola,110&galar')}&${range25}`;
+  return `${base24}&${range24},${base25.replaceAll(',78,38,110','78&galar,38&alola,110&galar')}&${range25}`;
 }
 
-updateAll();
+/* updates UI preview textarea and ranges */
+function renderPreview(){
+  const mode = document.getElementById('mode').value;
+  const { range24, range25 } = buildRanges();
+  document.getElementById('range24').innerText = range24;
+  document.getElementById('range25').innerText = range25;
+
+  // show full DNF preview with placeholders replaced (but not altering mode-specific removals)
+  const preview = generateFinalString(mode);
+  document.getElementById('output').value = preview;
+}
+
+/* copy and notify toast */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.innerText = msg || '✓ Kopiert!';
+  t.style.display = 'block';
+  setTimeout(()=>{ t.style.display='none'; }, 1600);
+}
+
+/* Haupt-Kopierfunktion: berechnet Ranges, ersetzt Platzhalter, kopiert final string */
+function copyAndNotify(){
+  const mode = document.getElementById('mode').value;
+  const final = generateFinalString(mode);
+  navigator.clipboard.writeText(final).then(()=>{
+    showToast('✓ Kopiert!');
+  }, ()=>{
+    showToast('Kopieren fehlgeschlagen (Clipboard nicht verfügbar)');
+  });
+  // update preview after copying (reflects newest ranges)
+  renderPreview();
+}
+
+/* kompakt kopieren (kürzeste Version) */
+function copyCompact(){
+  const mode = document.getElementById('mode').value;
+  const compact = buildCompact(mode);
+  navigator.clipboard.writeText(compact).then(()=> showToast('✓ Kompakt kopiert!'),
+    ()=> showToast('Kopieren fehlgeschlagen'));
+  renderPreview();
+}
+
+/* Initial render */
+renderPreview();
+
+/* Optional: live update when system time changes day boundary isn't necessary,
+   but we can update on visibility change so if user leaves page and returns it's fresh */
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden) renderPreview();
+});
 </script>
 
 </body>
