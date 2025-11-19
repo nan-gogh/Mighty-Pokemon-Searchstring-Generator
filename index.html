@@ -40,10 +40,25 @@ body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
+  /* Use flex-start so when the content is taller than the viewport
+     users can scroll to the very top. Previously centering prevented
+     reaching the header image's top edge at extreme zoom. */
+  justify-content:flex-start;
   min-height:100vh;
+  /* preserve the original breathing room but add a larger top padding
+     so short pages still visually sit away from the viewport top */
   padding:clamp(12px, 3vw, 28px);
+  padding-top: clamp(28px, 10vh, 80px);
   box-sizing:border-box;
+}
+
+/* When the page content is shorter than the viewport, apply this class
+   to vertically center the content. When content is taller, remove it so
+   users can scroll to the top freely. Toggled via JS (updateBodyCentered). */
+body.centered{
+  justify-content: center;
+  /* reduce top padding when truly centered to keep the visual balance */
+  padding-top: clamp(12px, 6vh, 48px);
 }
 
 body::before{
@@ -456,94 +471,40 @@ const EVENT25_END   = new Date(Date.UTC(2025, 10, 16, 23, 59, 59));
 const output = document.getElementById('output');
 const infoBtn = document.getElementById('mode-info-btn');
 
-// Load the external SVG logo, inline it, and apply a slow "flame" morph using
-// an SVG displacement filter (feTurbulence + feDisplacementMap). This affects
-// the SVG path boundaries and animates them without changing the raster image
-// boundary.
-async function loadAndMorphSvg(){
-  const img = document.querySelector('header img');
-  if(!img) return;
-  try{
-    const res = await fetch(img.getAttribute('src'));
-    if(!res.ok) return;
-    const text = await res.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, 'image/svg+xml');
-    const svg = doc.documentElement;
-    // Normalize sizing so CSS width token applies
-    svg.removeAttribute('width');
-    svg.removeAttribute('height');
-    svg.style.width = 'var(--header-control-effective)';
-    svg.style.maxWidth = '92vw';
-
-    const ns = 'http://www.w3.org/2000/svg';
-    // Ensure we have a <defs> and a filter for displacement
-    let defs = svg.querySelector('defs');
-    if(!defs){ defs = document.createElementNS(ns,'defs'); svg.insertBefore(defs, svg.firstChild); }
-
-    const filter = document.createElementNS(ns,'filter');
-    filter.setAttribute('id','flame-filter');
-    filter.setAttribute('primitiveUnits','userSpaceOnUse');
-
-    const turb = document.createElementNS(ns,'feTurbulence');
-    turb.setAttribute('type','fractalNoise');
-    turb.setAttribute('baseFrequency','0.01 0.02');
-    turb.setAttribute('numOctaves','2');
-    turb.setAttribute('seed','7');
-    turb.setAttribute('stitchTiles','noStitch');
-    turb.setAttribute('result','noise');
-
-    const disp = document.createElementNS(ns,'feDisplacementMap');
-    disp.setAttribute('in','SourceGraphic');
-    disp.setAttribute('in2','noise');
-    disp.setAttribute('scale','12');
-    disp.setAttribute('xChannelSelector','R');
-    disp.setAttribute('yChannelSelector','G');
-
-    filter.appendChild(turb);
-    filter.appendChild(disp);
-    defs.appendChild(filter);
-
-    // Wrap visible children (after defs) into a group so we can apply the filter cleanly
-    const g = document.createElementNS(ns,'g');
-    // Move nodes that are not defs into the group
-    const children = Array.from(svg.childNodes).filter(n => n.nodeType === 1 && n.nodeName.toLowerCase() !== 'defs');
-    children.forEach(n => g.appendChild(n));
-    svg.appendChild(g);
-    g.setAttribute('filter','url(#flame-filter)');
-
-    // Replace the <img> with the inlined SVG
-    img.replaceWith(svg);
-
-    // Animate the turbulence and displacement for a slow flame effect
-    let t = 0;
-    function step(){
-      t += 0.008; // slow
-      const f1 = 0.004 + Math.abs(Math.sin(t * 0.7)) * 0.01; // X frequency
-      const f2 = 0.008 + Math.abs(Math.cos(t * 0.9)) * 0.012; // Y frequency
-      turb.setAttribute('baseFrequency', `${f1} ${f2}`);
-      const scale = 8 + Math.abs(Math.sin(t * 0.6)) * 14; // displacement scale
-      disp.setAttribute('scale', String(scale));
-      requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }catch(e){
-    console.error('Failed to load/inline SVG', e);
-  }
-}
-
-loadAndMorphSvg();
-
 // NOTE: no global busy flag — button animations are reset on each click so
 // rapid clicks are allowed while the visual success state is kept until
 // the last timeout completes.
 
-/* Info text previously shown in the popover — kept as a JS constant now */
-const INFO_TEXT = `Füge den String in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deiner Sammlung zu finden.
+/* Info text previously shown in the popover — now generated so it can include live ranges */
+function getInfoText(){
+  const { range24, range25 } = buildRanges();
+  return `VERWENDUNG
 
-Die Suchleiste von Pokémon GO erlaubt nur einfache AND-Verknüpfungen (&) und unterstützt keine Klammern oder OR-Logik (|). Jede Kombination aus Pokémon, Form und Fangalter muss daher einzeln aufgelistet werden, damit alle mächtigen Pokémon korrekt erfasst werden.
+Füge den String in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deinem Besitz zu finden.
 
-Mithilfe dieser disjunktiven Normalform (DNF) und einem automatischen Altersfilter entsteht ein sehr langer aber funktionaler Suchstring für mächtige Pokémon.`;
+
+EINSCHRÄNKUNGEN
+
+Die Suchleiste von Pokémon GO erlaubt nur einfache AND‑Verknüpfungen (&) und unterstützt weder Klammern noch OR‑Logik (|). Jede Kombination aus Pokémon, Form und Fangalter muss einzeln aufgeführt werden.
+
+
+DETAILS
+
+- Disjunktive Normalform (DNF): Jede gültige Kombination wird einzeln gelistet.
+- Automatischer Altersfilter: Die Zeiträume werden dynamisch berechnet.
+
+
+ZEITRÄUME
+
+Naturzone 2024
+(23.–24.11.2024)
+` + range24 + `
+
+Naturzone 2025
+(15.–16.11.2025)
+` + range25 + `
+`;
+}
 
 function daysSince(date){
   const msPerDay = 1000*60*60*24;
@@ -582,6 +543,8 @@ function renderPreview(){
     }
   }catch(e){}
   requestAnimationFrame(() => { if(output) output.scrollTop = 0; });
+  // After rendering new content recompute whether the body should be centered
+  requestAnimationFrame(updateBodyCentered);
 }
 
 let timer = null;
@@ -597,17 +560,38 @@ function scheduleMidnightUpdate(){
   }, ms + 1000);
 }
 
+// Toggle body centering when the document content height is <= viewport height.
+function updateBodyCentered(){
+  try{
+    const docHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    const viewH = window.innerHeight || document.documentElement.clientHeight;
+    if(docHeight <= viewH + 1){
+      document.body.classList.add('centered');
+    } else {
+      document.body.classList.remove('centered');
+    }
+  }catch(e){}
+}
+
+// Update centering on resize/orientation changes and when visibility changes
+window.addEventListener('resize', updateBodyCentered);
+window.addEventListener('orientationchange', updateBodyCentered);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) updateBodyCentered(); });
+
 function toggleModeInfo(){
   if(!infoBtn || !output) return;
   const isOpen = infoBtn.getAttribute('data-info-open') === 'true';
 
   if(!isOpen){
     _prevCachedString = cachedString;
-    cachedString = INFO_TEXT;
-    output.value = INFO_TEXT;
+    const info = getInfoText();
+    cachedString = info;
+    output.value = info;
     requestAnimationFrame(()=>{ if(output) output.scrollTop = 0; });
     infoBtn.setAttribute('data-info-open', 'true');
     infoBtn.innerText = 'Zurück';
+    // content changed to info view — recompute centering
+    requestAnimationFrame(updateBodyCentered);
   } else {
     infoBtn.setAttribute('data-info-open', 'false');
     infoBtn.innerText = 'Info';
@@ -616,6 +600,8 @@ function toggleModeInfo(){
       _prevCachedString = null;
       output.value = cachedString;
       requestAnimationFrame(()=>{ if(output) output.scrollTop = 0; });
+      // content restored — recompute centering
+      requestAnimationFrame(updateBodyCentered);
     } else {
       renderPreview();
     }
