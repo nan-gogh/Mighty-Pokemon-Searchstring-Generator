@@ -3,125 +3,607 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Mächtige Pokémon – Suchstring Generator (dynamisch)</title>
+<title>Mächtiger Suchstring</title>
+  <link rel="icon" href="./mighty_mark_go.svg" type="image/svg+xml" />
+  <link rel="shortcut icon" href="./mighty_mark_go.svg" />
 <style>
+/* ============================================================================
+   CSS CUSTOM PROPERTIES
+   Design tokens for consistent theming throughout the application
+   ============================================================================ */
 :root{
-  /* Monochrome dark-grey palette (high-contrast) */
-  --go-blue:#242628;        /* header / primary button background (now grey) */
-  --go-blue-dark:#2e3032;   /* slightly lighter/darker variant for headings */
-  --bg:#0b0c0d;             /* page background */
-  --card:#111213;           /* card background */
-  --text:#eef1f2;          /* main text (light) */
-  --border:#1b1d1e;        /* subtle borders */
-  --muted:#9aa0a4;         /* muted/help text */
-  --btn-hover:#131415;     /* button hover (darker) */
+  /* Color Palette - Dark teal theme with lime accents */
+  --color-bg-dark-teal: #12251d; /* Main page background */
+  --color-bg-charcoal: #0f1011; /* Popover/panel backgrounds */
+  --color-lime-bright: #d5ff9a; /* Card backgrounds and muted text */
+  --color-teal-primary: #61C497; /* Primary text and interactive elements */
+  --color-charcoal-dark: #1a1b1c; /* Button backgrounds */
+  --color-border-subtle: rgba(255,255,255,0.03); /* Subtle borders */
+  --color-glass-overlay: rgba(255,255,255,0.02); /* Glass morphism effects */
+  --color-focus-blue: rgba(78, 144, 254, 0.12); /* Focus ring for accessibility */
+  
+  /* Layout & Sizing - Responsive control widths */
+  --header-control-width: 300px; /* Base width for controls */
+  --header-control-effective: clamp(200px, 90vw, var(--header-control-width)); /* Fluid responsive width */
+  
+  /* Border Radius - Shape definitions */
+  --radius: 999px; /* Pill-shaped buttons (fully rounded) */
+  --card-radius: 25px;  /* Rounded card corners */
+  
+  /* Spacing - Card padding for different breakpoints */
+  --card-padding: 28px 18px 18px 18px; /* Desktop padding */
+  --card-padding-sm: 24px 14px 14px 14px; /* Tablet padding */
+  --card-padding-xs: 20px 12px 12px 12px; /* Mobile padding */
+  
+  /* Transitions - Smooth animations */
+  --transition-smooth: 520ms cubic-bezier(.2,0,.2,1); /* Smooth easing for major transitions */
+  --transition-fast: 120ms ease; /* Quick transitions for hover states */
 }
-html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-header{background:var(--go-blue);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 3px 10px rgba(0,0,0,0.12)}
-header img{width:44px;height:44px}
-.container{max-width:980px;margin:20px auto;padding:12px}
-.card{background:var(--card);border-radius:12px;padding:18px;margin-bottom:16px;border:2px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.06)}
-h1{margin:0;font-size:1.05rem}
-h2{margin:0 0 8px 0;color:var(--go-blue-dark)}
-.p-muted{color:var(--muted);margin:0 0 8px 0;font-size:0.95rem}
-select{width:100%;padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:1rem}
-textarea{width:100%;min-height:160px;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--card);color:var(--text);font-family:monospace;resize:vertical}
-.row{display:flex;gap:12px;flex-wrap:wrap}
-.col{flex:1;min-width:140px}
-.btn{background:var(--go-blue);color:white;padding:10px 14px;border:none;border-radius:12px;font-weight:600;cursor:pointer}
-.btn:active{transform:translateY(1px)}
-.small{font-size:0.9rem}
-.note{font-size:0.9rem;color:var(--muted);margin-top:8px}
-.toast{position:fixed;right:20px;bottom:20px;background:#2b8a3e;color:white;padding:10px 14px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.2);display:none}
-.footer{font-size:0.85rem;color:var(--muted);text-align:center;margin-top:6px}
-@media (max-width:640px){ header{padding:12px} .container{padding:8px} }
+
+/* ============================================================================
+   RESET & BASE STYLES
+   Normalize browser defaults for consistent rendering
+   ============================================================================ */
+html{box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit} /* Apply border-box globally */
+
+html,body{
+  height:100%;
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+}
+
+/* ============================================================================
+   LAYOUT & PAGE STRUCTURE
+   Main body layout with flexbox centering and background image
+   ============================================================================ */
+body{
+  background:var(--color-bg-dark-teal);
+  color:var(--color-teal-primary);
+  -webkit-font-smoothing:antialiased; /* Better font rendering on macOS */
+  -moz-osx-font-smoothing:grayscale;
+  position:relative;
+  z-index:0;
+  /* Flexbox centering for entire page content */
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  padding:28px;
+  box-sizing:border-box;
+}
+
+/* Background image layer - fixed pseudo-element with gradient fade effect */
+body::before{
+  content: "";
+  position:fixed; /* Fixed to viewport */
+  inset:0; /* Fill entire viewport */
+  background-image: url('./young_will.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.15; /* Subtle visibility */
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: 0; /* Behind all content */
+  mix-blend-mode: overlay; /* Blend with background color */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,1)); /* Fade from top */
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,1));
+}
+
+/* Ensure all direct children render above background */
+body > *{position:relative;z-index:1}
+
+.container{
+  width:100%;
+  max-width:980px;
+  margin:0;
+  padding:8px;
+}
+
+/* ============================================================================
+   HEADER & NAVIGATION
+   Main header with logo, titles, and action buttons
+   ============================================================================ */
+header{
+  background: transparent;
+  color:var(--color-teal-primary);
+  padding:18px 22px 6px 22px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  position:relative;
+  width:100%;
+  max-width:980px;
+}
+
+/* Header logo - responsive sizing */
+header img{
+  width: var(--header-control-effective); /* Fluid width based on viewport */
+  height: auto;
+  flex: 0 0 auto;
+  max-width: 92vw; /* Never exceed viewport width */
+  object-fit: contain;
+  border-radius:0;
+}
+
+header > div{
+  width:100%;
+  text-align:center;
+}
+
+/* Button container in header */
+.header-actions{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  margin-top:6px;
+  position:relative; /* Positioning context for popover */
+}
+
+.header-actions .btn{
+  padding:10px 18px;
+  border-radius:var(--radius);
+  min-width: var(--header-control-effective);
+}
+
+/* Share and Info button row */
+.share-row{
+  width: var(--header-control-effective);
+  display:flex;
+  gap:8px;
+  margin-top:14px;
+}
+
+.share-row .btn{
+  flex:1; /* Equal width distribution */
+  min-width:0; /* Allow flex shrinking */
+}
+
+.share-row #mode-info-btn{
+  flex:1;
+}
+
+/* ============================================================================
+   TYPOGRAPHY
+   Heading and text styles with responsive scaling
+   ============================================================================ */
+h1{
+  margin:0 auto;
+  font-size:1.06rem;
+  font-weight:600;
+  text-align:center;
+  width:var(--header-control-effective);
+  max-width:110%;
+  box-sizing:border-box;
+  line-height:1;
+}
+
+/* Main heading - responsive font size based on control width */
+header h1:first-of-type{
+  font-size:clamp(16px, calc(var(--header-control-effective) * 0.11), 42px);
+  margin-bottom:6px;
+}
+
+/* Secondary heading - slightly smaller responsive sizing */
+header h1:nth-of-type(2){
+  font-size:clamp(14px, calc(var(--header-control-effective) * 0.097), 36px);
+}
+
+/* Muted text styling - used for help text and descriptions */
+.p-muted{
+  color:var(--color-lime-bright);
+  margin:0 0 8px 0;
+  font-size:0.95rem;
+}
+
+/* Small muted text variant - for subtle hints */
+.p-muted.small{
+  display:block;
+  width:var(--header-control-effective);
+  max-width:100%;
+  margin:12px auto 0;
+  text-align:center;
+  font-size: clamp(11px, calc(var(--header-control-effective) * 0.0367), 14px);  /* Scale with control width */
+  line-height: 1.3;
+}
+
+/* ============================================================================
+   COMPONENTS - CARDS
+   Main content card with adaptive height and smooth transitions
+   ============================================================================ */
+.card{
+  background:var(--color-lime-bright);
+  border-radius:var(--card-radius);
+  padding:var(--card-padding);
+  margin-bottom:16px;
+  margin-top:-50px; /* Negative margin creates layered effect with button */
+  border:1px solid rgba(0,0,0,0.12);
+  position:relative;
+  z-index:1; /* Below button (z-index:10) but above background */
+  width: var(--header-control-effective);
+  margin-left: auto;
+  margin-right: auto;
+  max-height: 1200px; /* Large enough for content, animatable */
+  overflow: visible;
+  opacity: 1;
+  transform: translateY(0);
+  /* Smooth transitions for all properties when hiding/showing */
+  transition: max-height var(--transition-smooth), opacity 420ms ease, transform 420ms ease, padding 420ms ease, margin 420ms ease;
+  will-change: max-height, opacity, transform;  /* Performance hint for animations */
+  contain: layout style paint; /* CSS containment for better performance */
+}
+
+/* Hidden state - collapses card completely with smooth animation */
+.card.hidden{
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  transform: translateY(-6px) !important; /* Slight upward shift */
+  pointer-events: none !important; /* Disable interactions */
+  border-color: transparent !important;
+}
+
+/* ============================================================================
+   COMPONENTS - FORM ELEMENTS
+   Textarea with custom styling and scrollbar customization
+   ============================================================================ */
+textarea{
+  width:100%;
+  min-height:220px;
+  max-height:70vh; /* Responsive max height */
+  padding:12px 12px 12px 18px;
+  margin-top: 20px;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:var(--color-lime-bright);
+  color:var(--color-teal-primary);
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;  /* Monospace for search strings */
+  resize:none; /* Disable manual resizing */
+  white-space:pre-wrap; /* Preserve whitespace and wrap */
+  word-break:break-word;
+  overflow:auto;
+  overflow-wrap: anywhere;
+}
+
+textarea:focus{
+  outline:none; /* Remove default outline */
+  box-shadow:none;
+}
+
+/* Custom scrollbar styling - WebKit browsers (Chrome, Safari, Edge) */
+textarea::-webkit-scrollbar{
+  width:24px; /* Wide scrollbar for better usability */
+  height:12px;
+  background:transparent;
+}
+
+textarea::-webkit-scrollbar-track{
+  background: transparent;
+}
+
+/* Scrollbar thumb - hidden by default, shows on hover */
+textarea::-webkit-scrollbar-thumb{
+  background: var(--color-teal-primary);
+  border-radius:10px;
+  opacity:0; /* Hidden by default */
+  transition:opacity 420ms ease, background-color 320ms ease;
+}
+
+/* Show scrollbar on card hover or textarea focus */
+.card:hover textarea::-webkit-scrollbar-thumb,
+textarea:focus::-webkit-scrollbar-thumb{
+  opacity:1;
+  background: var(--color-teal-primary);
+}
+
+/* Firefox scrollbar styling */
+textarea{
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent; /* Hidden by default */
+}
+
+.card:hover textarea{
+  scrollbar-color: var(--color-teal-primary) transparent; /* Visible on hover */
+}
+
+/* ============================================================================
+   COMPONENTS - BUTTONS
+   Button base styles with hover effects and state variants
+   ============================================================================ */
+.btn{
+  background:var(--color-charcoal-dark);
+  color:var(--color-teal-primary);
+  padding:10px 14px;
+  border:none;
+  border-radius:var(--radius); /* Pill-shaped */
+  font-weight:600;
+  cursor:pointer;
+  /* Fast transitions for interactive feedback */
+  transition:transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+  box-shadow:none;
+  border:1px solid var(--color-border-subtle);
+  will-change: transform; /* Performance hint for transform animations */
+}
+
+/* Button hover state - lift effect with shadow */
+.btn:hover{
+  transform:translateY(-3px); /* Subtle lift on hover */
+  box-shadow:0 6px 18px rgba(0,0,0,0.35);
+}
+
+/* Accessibility - focus ring for keyboard navigation */
+.btn:focus{
+  outline:3px solid var(--color-focus-blue);
+  outline-offset:2px;
+}
+
+/* Disabled button state */
+.btn[disabled],
+.btn:disabled{
+  cursor:not-allowed;
+  pointer-events:none; /* Prevent interaction */
+  color:rgba(255,255,255,0.85);
+}
+
+/* Success state - green background with pulse animation */
+.btn.success{
+  background:#2b8a3e; /* Success green */
+  color:white;
+  border-color:rgba(255,255,255,0.06);
+  transform-origin:center;
+  animation:btn-pulse 360ms ease-out 1;   /* Play pulse animation once */
+}
+
+/* Error state - red background */
+.btn.error{
+  background:#8a2b2b; /* Error red */
+  color:white;
+  border-color:rgba(255,255,255,0.06);
+}
+
+/* ============================================================================
+   Clipboard Button Variant
+   Primary action button with distinctive styling and glow effects
+   ============================================================================ */
+.btn-clipboard{
+  background: var(--color-teal-primary);
+  color: var(--color-lime-bright);
+  border-color: rgba(0,0,0,0.12);
+  padding:16px 28px; /* Larger padding for prominence */
+  font-size:1.12rem;
+  width: var(--header-control-effective);
+  border-radius:var(--radius);
+  position:relative;
+  z-index:10; /* Above card layer */
+}
+
+/* Clipboard button success state - special glow animation */
+.btn-clipboard.success{
+  background: #d5ff9a;
+  color: var(--color-teal-primary);
+  border-color: rgba(255,255,255,0.06);
+  animation: btn-pulse 1000ms ease-out 1, btn-glow 1000ms ease-out 1;  /* Dual animations */
+}
+
+/* Clipboard button hover - teal-colored glow */
+.btn-clipboard:hover{
+  box-shadow: 0 18px 50px rgba(97,196,151,0.16), 0 6px 18px rgba(97,196,151,0.08);
+  transform: translateY(-1px); /* Subtle lift, less than regular buttons */
+}
+
+/* ============================================================================
+   COMPONENTS - POPOVER
+   Info popover with entrance/exit animations
+   ============================================================================ */
+#mode-info{
+  position:absolute; /* Positioned relative to .header-actions */
+  z-index:50; /* Above all other elements */
+  background:var(--color-bg-charcoal);
+  color:var(--color-teal-primary);
+  border:1px solid var(--color-border-subtle);
+  padding:14px;
+  border-radius:var(--card-radius);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.55); /* Deep shadow for elevation */
+  width:var(--header-control-effective);
+  max-width:92vw; /* Prevent overflow on small screens */
+  word-break:normal;
+  left:50%;
+  top:0;
+  /* Initial hidden state - slightly scaled down and shifted */
+  transform:translateX(-50%) translateY(-6px) scale(.98);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none; /* Non-interactive when hidden */
+  transition:opacity 200ms ease, transform 220ms cubic-bezier(.2,0,.2,1), visibility 200ms;
+  will-change: opacity, transform; /* Performance hint */
+  contain: layout style paint;
+}
+
+/* Open state - smooth entrance animation */
+#mode-info.open{
+  opacity:1;
+  transform:translateX(-50%) translateY(0) scale(1); /* Centered, full size */
+  visibility:visible;
+  pointer-events:auto; /* Interactive when open */
+}
+
+/* ============================================================================
+   ANIMATIONS & KEYFRAMES
+   Reusable animation definitions for button feedback
+   ============================================================================ */
+/* Pulse animation - scale and shadow pulse for success feedback */
+@keyframes btn-pulse{
+  0%{transform:scale(1);box-shadow:0 6px 18px rgba(43,138,62,0.06)}
+  50%{transform:scale(1.06);box-shadow:0 12px 30px rgba(43,138,62,0.14)}
+}
+/* Pulse animation - scale and shadow pulse for success feedback */
+@keyframes btn-pulse{
+  0%{transform:scale(1);box-shadow:0 6px 18px rgba(43,138,62,0.06)}
+  50%{transform:scale(1.06);box-shadow:0 12px 30px rgba(43,138,62,0.14)} /* Grow and intensify */
+  100%{transform:scale(1);box-shadow:0 6px 18px rgba(43,138,62,0.06)} /* Return to normal */
+}
+
+/* Glow animation - expanding shadow effect for clipboard button */
+@keyframes btn-glow{
+  0%{ box-shadow: 0 8px 22px rgba(97,196,151,0.10), 0 0 0 rgba(97,196,151,0); }
+  30%{ box-shadow: 0 26px 72px rgba(97,196,151,0.30), 0 0 60px rgba(97,196,151,0.24); } /* Peak glow */
+  60%{ box-shadow: 0 36px 110px rgba(97,196,151,0.40), 0 0 90px rgba(97,196,151,0.32); } /* Maximum intensity */
+  100%{ box-shadow: 0 8px 22px rgba(97,196,151,0.10), 0 0 0 rgba(97,196,151,0); } /* Fade out */
+}
+
+/* ============================================================================
+   RESPONSIVE UTILITIES
+   Flex container constraints for responsive behavior
+   ============================================================================ */
+.header-actions, .share-row, .card {
+  min-width: 0; /* Allow flex shrinking */
+  max-width: 100%; /* Prevent overflow */
+}
+
+/* ============================================================================
+   MEDIA QUERIES - RESPONSIVE BREAKPOINTS
+   Mobile-first responsive adjustments for tablets and phones
+   ============================================================================ */
+
+/* Tablets and small desktops (640px and below) */
+@media (max-width: 640px) {
+  header{padding:12px} /* Reduce header padding */
+  body{padding:16px} /* Reduce body padding */
+  .card{
+    width: var(--header-control-effective);
+    min-width:160px;
+    padding:var(--card-padding-sm); /* Use smaller padding variant */
+  }
+}
+
+/* Mobile devices (380px and below) */
+@media (max-width: 380px) {
+  /* Stack share buttons vertically */
+  .share-row {
+    flex-direction: column;
+    gap:6px;
+  }
+  
+  .share-row .btn {
+    width: 100%; /* Full width buttons */
+    min-height:44px; /* Touch-friendly height */
+  }
+  
+  .btn-clipboard{
+    padding:14px 20px !important; /* Reduce padding on small screens */
+  }
+  
+  textarea{
+    min-height:140px; /* Shorter textarea on mobile */
+  }
+}
+
+/* Ultra-small screens (320px and below) */
+@media (max-width: 320px) {
+  body{padding:12px} /* Minimal padding */
+  header{padding:8px}
+  .header-actions{gap:6px} /* Tighter spacing */
+  .card{padding:var(--card-padding-xs)} /* Smallest padding variant */
+}
 </style>
 </head>
 <body>
 
 <header>
-  <!-- simple pokeball-style mark (base64 tiny PNG) -->
-  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB8ElEQVR4nO3aMW7CMBRE4e0gA1xAE7ABO0ATsAE7QBO0ATsAFdSZciKHjYFvJsnM1279kZyyv8l+ShVYJKmjGkrgekeqODyFrmNgt59qgm7wT+Y34C17/sflSXqAgAAAAAAAAAAAOCJp3aoQKjxSmU4J4ym8XkqvhBN4Fr/EsuXzuOqxXgHG2s3xPr6Z1v8XK2EafNQkXz5F81K4Zb5pnsxHWtHqJ3bBnm1pH6kNtC2jWQH2y8n8We6pCchX2W0azGB9q2ngZ5N9G8J7j+r6SppLr3coWvYe7dS/3YB1ptzYfP6miXiu6FD7U9Y9IuuvJ5sfqt+jGfRmpPqVW6t4FG0WVa0J3bb7LLk7o3VszTf9t2aD69EM0vae2dLrBvS6jb5tU0qcYF8Z9Zbd+WeCz6q9aW6rTbfh+I1sZ9YOfvCy9H6XqH1brtNtr9zO6tabx1hX1q/9r+Kc8KC3WHr0ZWw1ar9q3gEAAAAAAAAAAABgH/0D74+MwoZXYd4AAAAASUVORK5CYII=" alt="Pokémark"/>
+  <img src="./mighty_mark_go.svg" alt="Pokémark" />
   <div>
-    <h1 style="font-size:1rem;margin:0">Mächtige Pokémon – Suchstring Generator</h1>
-    <div class="p-muted small">Die Suchleiste von Pokémon GO erlaubt nur einfache AND-Verknüpfungen (&) erlaubt und unterstützt keine Klammern oder OR-Logik. Jede Kombination aus Pokémon, Form und Fangalter muss daher einzeln aufgelistet werden, damit alle mächtigen Pokémon eines Events korrekt erfasst werden.</div>
+    <h1>Mächtige Pokémon</h1>
+    <h1>Suchstring Generator</h1>
+    <div class="p-muted small">Mächtige Pokemon brauchen einen mächtigen Suchstring!</div>
+  </div>
+  <div class="header-actions">
+    <div id="mode-info" class="popover" role="tooltip" aria-hidden="true">
+    Füge den String in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deiner Sammlung zu finden.<br><br>
+    Die Suchleiste von Pokémon GO erlaubt nur einfache AND-Verknüpfungen (&) und unterstützt keine Klammern oder OR-Logik (|). Jede Kombination aus Pokémon, Form und Fangalter muss daher einzeln aufgelistet werden, damit alle mächtigen Pokémon korrekt erfasst werden.<br><br>
+    Mithilfe dieser disjunktiven Normalform (DNF) und einem automatischen Altersfilter entsteht ein sehr langer aber funktionaler Suchstring für mächtige Pokémon.
+    </div>
+    <button class="btn btn-clipboard" onclick="copyAndNotify(this)" aria-label="Suchstring kopieren">Suchstring kopieren</button>
+    <div class="card">
+      <textarea id="output" readonly></textarea>
+    </div>
+    <div class="share-row">
+      <button class="btn btn-share" onclick="shareSite(this)" aria-label="Seite teilen">Teilen</button>
+      <button id="mode-info-btn" class="btn" onclick="toggleModeInfo()" aria-label="Info">Info</button>
+    </div>
   </div>
 </header>
 
-<main class="container">
-
-  <div class="card">
-    <h2>Auswahl</h2>
-    <p class="p-muted">Wähle, welche Sets du möchtest (Textarea zeigt aktuell den resultierenden String).</p>
-    <select id="mode" onchange="renderPreview()">
-      <option value="all">Alle (2024 + 2025)</option>
-      <option value="2024">Nur Naturzone 2024</option>
-      <option value="2025">Nur Naturzone 2025</option>
-    </select>
-    <div class="note">Beim Kopieren werden die Platzhalter mit aktuellen <code>alter</code>-Werten ersetzt.</div>
-  </div>
-
-  <div class="card">
-    <h2>Aktuelle Alter-Ranges</h2>
-    <div class="row">
-      <div class="col">
-        <strong>Naturzone 2024 (23.–24.11.2024)</strong>
-        <div id="range24" class="note">—</div>
-      </div>
-      <div class="col">
-        <strong>Naturzone 2025 (15.–16.11.2025)</strong>
-        <div id="range25" class="note">—</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Suchstring (Vorschau)</h2>
-    <textarea id="output" readonly></textarea>
-    <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn" onclick="copyAndNotify()">In die Zwischenablage kopieren</button>
-      <!-- Compact mode removed: single full copy button kept -->
-    </div>
-    <div class="footer">Tipp: Füge den String in die Pokémon GO Suchleiste ein.</div>
-  </div>
-
-</main>
-
-<div id="toast" class="toast">✓ Kopiert!</div>
-
 <script>
-/* ------------------------------
-   TEMPLATE (dein langer Megastring)
-   Platzhalter: {{A24}} und {{A25}}
-   ------------------------------ */
+/* ============================================================================
+   SEARCH STRING TEMPLATE
+   Template string with placeholders ({{A24}} and {{A25}}) for age ranges.
+   Contains all possible combinations of Pokémon IDs, forms, and age filters
+   needed to find "Mighty" Pokémon in Pokémon GO.
+   
+   The template uses disjunctive normal form (DNF) because Pokémon GO's search
+   syntax only supports AND (&) operators without parentheses or OR logic.
+   ============================================================================ */
 const TEMPLATE = `018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,{{A25}}& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola& {{A24}},{{A25}}`;
 
-/* ------------------------------
-   Eventdaten (UTC-local dates)
-   ------------------------------ */
-// Use UTC construction to avoid relying on browser-specific parsing/local-time assumptions
+/* ============================================================================
+   EVENT DATES
+   UTC timestamps for "Mighty Pokémon" events. Using Date.UTC() ensures
+   consistent timezone handling across all browsers and locales.
+   
+   Month parameter is 0-indexed (10 = November)
+   ============================================================================ */
 const EVENT24_START = new Date(Date.UTC(2024, 10, 23, 0, 0, 0)); // 2024-11-23 00:00:00 UTC
 const EVENT24_END   = new Date(Date.UTC(2024, 10, 24, 23, 59, 59)); // 2024-11-24 23:59:59 UTC
 
 const EVENT25_START = new Date(Date.UTC(2025, 10, 15, 0, 0, 0)); // 2025-11-15 00:00:00 UTC
 const EVENT25_END   = new Date(Date.UTC(2025, 10, 16, 23, 59, 59)); // 2025-11-16 23:59:59 UTC
 
-/* helper: ganze Tage Unterschied (floor) */
+/* ============================================================================
+   DOM CACHE
+   Pre-query and cache DOM elements at initialization for better performance.
+   Eliminates repeated getElementById calls throughout the application.
+   ============================================================================ */
+const DOM = {
+  output: null,
+  modeInfoBtn: null,
+  modeInfo: null,
+  init() {
+    this.output = document.getElementById('output');
+    this.modeInfoBtn = document.getElementById('mode-info-btn');
+    this.modeInfo = document.getElementById('mode-info');
+  }
+};
+
+/* ============================================================================
+   DATE CALCULATION UTILITIES
+   ============================================================================ */
+
+/**
+ * Calculate number of full days elapsed since a given date
+ * @param {Date} date - The past date to calculate from
+ * @returns {number} Number of complete days elapsed
+ */
 function daysSince(date){
-  // Use epoch ms to avoid subtle timezone parsing issues — robust across environments
   const msPerDay = 1000*60*60*24;
   return Math.floor((Date.now() - date.getTime())/msPerDay);
 }
 
-/* baut die beiden Range-Strings */
+/**
+ * Build age range strings for both 2024 and 2025 events
+ * @returns {Object} Object containing range strings and min/max values
+ */
 function buildRanges(){
-  // Für 2024: Range von days since END bis days since START
-  const a24_min = daysSince(EVENT24_END);
-  const a24_max = daysSince(EVENT24_START);
-  const range24 = `alter${a24_min}-${a24_max}`;
+  const a24_min = daysSince(EVENT24_END); // Days since event ended
+  const a24_max = daysSince(EVENT24_START); // Days since event started
+  const range24 = `alter${a24_min}-${a24_max}`; // e.g., "alter360-362"
 
-  // Für 2025 (2 Tage): ebenfalls range (end..start)
   const a25_min = daysSince(EVENT25_END);
   const a25_max = daysSince(EVENT25_START);
   const range25 = `alter${a25_min}-${a25_max}`;
@@ -129,87 +611,224 @@ function buildRanges(){
   return { range24, range25, a24_min, a24_max, a25_min, a25_max };
 }
 
-/* ersetzt Platzhalter und liefert finalen String */
+/* ============================================================================
+   STRING GENERATION
+   ============================================================================ */
+
+/**
+ * Generate the final search string by replacing placeholders and cleaning up
+ * @param {string} mode - Filter mode: "all", "2024", or "2025"
+ * @returns {string} Cleaned search string ready for Pokémon GO
+ */
 function generateFinalString(mode){
   const { range24, range25 } = buildRanges();
+  // Replace placeholders with calculated age ranges
+  let out = TEMPLATE.replaceAll("{{A24}}", range24).replaceAll("{{A25}}", range25);
 
-  // Depending on mode provide correct template subset:
-  // We still want to support "all", "2024", "2025"
-  const tpl = TEMPLATE;
-
-  // For "2024" only: remove all parts that rely solely on 2025.
-  // Simplest approach: generate and then filter: if mode === '2024' remove all occurrences of segments that were
-  // intended only for 2025. But the TEMPLATE is built as large DNF; safest is to keep full template but at preview we can
-  // show only relevant ranges. Pokémon GO will ignore irrelevant age filters anyway.
-  // We'll still allow mode to control which age filters to include in the output.
-  let out = tpl.replaceAll("{{A24}}", range24).replaceAll("{{A25}}", range25);
-
-  // If the user wants only one event, remove the other event's range tokens (literal strings).
+  // Filter by event year if requested
   if(mode === "2024"){
-    out = out.replaceAll(range25, '');
+    out = out.replaceAll(range25, ''); // Remove 2025 entries
   } else if(mode === "2025"){
-    out = out.replaceAll(range24, '');
+    out = out.replaceAll(range24, ''); // Remove 2024 entries
   }
 
-  // Cleanup: split on '&' (AND-groups), tidy each group, drop empty groups, then rejoin.
+  // Cleanup: normalize groups and remove empty ones
   const cleaned = out.split('&').map(g => {
-    // normalize whitespace
     g = g.trim();
-    // collapse multiple commas into one
-    g = g.replace(/,+/g, ',');
-    // remove any consecutive commas left at edges
-    g = g.replace(/^,|,$/g, '');
+    g = g.replace(/,+/g, ','); // Collapse multiple commas
+    g = g.replace(/^,|,$/g, ''); // Remove leading/trailing commas
     return g;
-  }).filter(g => g.length > 0).join('&');
+  }).filter(g => g.length > 0).join('&');  // Remove empty groups
 
-  // Final trimming of stray commas/spaces
-  return cleaned.replace(/(^,|,$)/g, '').replace(/\s+/g, ' ');
+  return cleaned.replace(/(^,|,$)/g, '').replace(/\s+/g, ' '); // Final cleanup
 }
 
-/* compact mode removed */
+/* ============================================================================
+   UI UPDATE FUNCTIONS
+   ============================================================================ */
 
-/* updates UI preview textarea and ranges */
+/**
+ * Update the textarea preview with the generated search string
+ * Resets scroll position for consistency using requestAnimationFrame
+ */
 function renderPreview(){
-  const mode = document.getElementById('mode').value;
-  const { range24, range25 } = buildRanges();
-  document.getElementById('range24').innerText = range24;
-  document.getElementById('range25').innerText = range25;
-
-  // show full DNF preview with placeholders replaced (but not altering mode-specific removals)
-  const preview = generateFinalString(mode);
-  document.getElementById('output').value = preview;
+  const preview = generateFinalString('all'); // Generate with all events
+  if(DOM.output){
+    DOM.output.value = preview;
+    // Use RAF for smooth scroll reset after content update
+    requestAnimationFrame(() => {
+      if(DOM.output) DOM.output.scrollTop = 0;
+    });
+  }
 }
 
-/* copy and notify toast */
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.innerText = msg || '✓ Kopiert!';
-  t.style.display = 'block';
-  setTimeout(()=>{ t.style.display='none'; }, 1600);
+/* ============================================================================
+   AUTOMATIC MIDNIGHT UPDATES
+   Schedule daily updates at local midnight to keep age ranges current
+   ============================================================================ */
+let __midnightTimer = null;
+
+/**
+ * Calculate milliseconds until next local midnight
+ * @returns {number} Milliseconds until 00:00:00 local time
+ */
+function msUntilNextLocalMidnight(){
+  const now = new Date();
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+  return next.getTime() - now.getTime();
 }
 
-/* Haupt-Kopierfunktion: berechnet Ranges, ersetzt Platzhalter, kopiert final string */
-function copyAndNotify(){
-  const mode = document.getElementById('mode').value;
+/**
+ * Schedule a timer to update the preview at midnight
+ * Recursively reschedules itself for continuous daily updates
+ */
+function scheduleMidnightUpdate(){
+  if(__midnightTimer) clearTimeout(__midnightTimer);
+  const ms = msUntilNextLocalMidnight();
+  __midnightTimer = setTimeout(()=>{
+    try{ renderPreview(); }catch(e){ console.error(e); }
+    scheduleMidnightUpdate(); // Schedule next midnight update
+  }, ms + 1000); // Add 1s buffer to ensure date has rolled over
+}
+
+/* ============================================================================
+   POPOVER CONTROLS
+   Functions to open/close/toggle the info popover with ARIA attributes
+   ============================================================================ */
+
+/**
+ * Open the info popover
+ */
+function openModeInfo(){
+  if(!DOM.modeInfoBtn || !DOM.modeInfo) return;
+  DOM.modeInfoBtn.setAttribute('aria-expanded','true');
+  DOM.modeInfo.classList.add('open');
+  DOM.modeInfo.setAttribute('aria-hidden','false');
+}
+
+/**
+ * Close the info popover
+ */
+function closeModeInfo(){
+  if(!DOM.modeInfoBtn || !DOM.modeInfo) return;
+  DOM.modeInfoBtn.setAttribute('aria-expanded','false');
+  DOM.modeInfo.classList.remove('open');
+  DOM.modeInfo.setAttribute('aria-hidden','true');
+}
+
+/**
+ * Toggle popover open/closed state
+ */
+function toggleModeInfo(){
+  if(!DOM.modeInfoBtn) return;
+  const open = DOM.modeInfoBtn.getAttribute('aria-expanded') === 'true';
+  if(open) closeModeInfo(); else openModeInfo();
+}
+
+// Close popover when clicking outside of it
+document.addEventListener('click', (e)=>{
+  if(!DOM.modeInfo || !DOM.modeInfo.classList.contains('open')) return;
+  if(!DOM.modeInfo.contains(e.target) && !DOM.modeInfoBtn.contains(e.target)) closeModeInfo();
+});
+
+// Close popover on Escape key
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeModeInfo(); });
+
+/* ============================================================================
+   BUTTON STATE MANAGEMENT
+   Handles temporary button state changes with auto-revert
+   ============================================================================ */
+
+/**
+ * Set button state with text and styling, auto-revert after timeout
+ * @param {HTMLElement} btn - Button element to modify
+ * @param {string} text - Text to display temporarily
+ * @param {string} state - State class: 'success' or 'error'
+ * @private
+ */
+function _setButtonState(btn, text, state){
+  if(!btn) return;
+  if(btn._copyTimeout) clearTimeout(btn._copyTimeout); // Clear existing timer
+  if(!btn.dataset.origText) btn.dataset.origText = btn.innerText; // Store original
+  
+  btn.innerText = text;
+  btn.classList.remove('success','error');
+  if(state === 'success') btn.classList.add('success');
+  if(state === 'error') btn.classList.add('error');
+  
+  // Store and set disabled state
+  if(typeof btn.dataset.origDisabled === 'undefined') btn.dataset.origDisabled = btn.disabled ? '1' : '0';
+  try{ btn.disabled = true; btn.setAttribute('aria-disabled','true'); }catch(e){}
+  
+  // Different revert times: clipboard button uses 1000ms, others use 360ms
+  const _revertMs = (btn.classList && btn.classList.contains('btn-clipboard')) ? 1000 : 360;
+  
+  // Auto-revert after timeout
+  btn._copyTimeout = setTimeout(()=>{
+    try{
+      btn.innerText = btn.dataset.origText || 'Suchstring kopieren';
+      btn.classList.remove('success','error');
+      const orig = btn.dataset.origDisabled === '1';
+      btn.disabled = orig;
+      if(!orig) btn.removeAttribute('aria-disabled');
+    }catch(e){}
+    delete btn._copyTimeout;
+  }, _revertMs);
+}
+
+/* ============================================================================
+   CLIPBOARD & SHARE FUNCTIONS
+   ============================================================================ */
+
+/**
+ * Copy the generated search string to clipboard and show success/error feedback
+ * @param {HTMLElement} btn - Button element (optional, defaults to clipboard button)
+ */
+function copyAndNotify(btn){
+  const button = btn || document.querySelector('.btn-clipboard');
+  const mode = 'all'; // Always copy complete string with all events
   const final = generateFinalString(mode);
+  
   navigator.clipboard.writeText(final).then(()=>{
-    showToast('✓ Kopiert!');
+    try{ renderPreview(); }catch(e){}  // Refresh preview on success
+    _setButtonState(button, '✓ Kopiert!', 'success');
   }, ()=>{
-    showToast('Kopieren fehlgeschlagen (Clipboard nicht verfügbar)');
+    _setButtonState(button, 'Kopieren fehlgeschlagen', 'error');
   });
-  // update preview after copying (reflects newest ranges)
-  renderPreview();
 }
 
-/* compact copy removed */
+/**
+ * Share the site URL using Web Share API (if available)
+ * No visual feedback - silent operation
+ * @param {HTMLElement} btn - Button element (unused, for consistency)
+ */
+function shareSite(btn){
+  const button = btn || document.querySelector('.btn-share');
+  const shareData = { 
+    title: document.title || 'Mächtiger Suchstring', 
+    text: 'Schau dir diesen Suchstring-Generator an', 
+    url: location.href 
+  };
 
-/* Initial render */
-renderPreview();
+  if(navigator.share){
+    navigator.share(shareData).then(()=>{}).catch(()=>{});  // Silent operation
+  }
+}
 
-/* Optional: live update when system time changes day boundary isn't necessary,
-   but we can update on visibility change so if user leaves page and returns it's fresh */
+/* ============================================================================
+   INITIALIZATION
+   Bootstrap the application on page load
+   ============================================================================ */
+DOM.init(); // Cache DOM elements
+renderPreview(); // Initial render
+scheduleMidnightUpdate(); // Start daily update scheduler
+
+// Refresh when tab becomes visible (in case date changed while hidden)
 document.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden) renderPreview();
+  if(!document.hidden){
+    renderPreview();
+    scheduleMidnightUpdate(); // Reschedule in case timer drifted
+  }
 });
 </script>
 
