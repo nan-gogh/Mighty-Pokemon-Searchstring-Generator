@@ -528,69 +528,7 @@ async function loadAndMorphSvg(){
     }
     requestAnimationFrame(step);
   }catch(e){
-    console.warn('Failed to load/inline SVG — falling back to raster filter. Error:', e);
-    // Fallback: create an SVG <defs> with the displacement filter in the document
-    // and apply it to the <img> via CSS `filter: url(#flame-filter)`. This will
-    // morph the rasterized image (not the vector paths) but still gives visible
-    // flame-like movement on browsers that block fetch for local files (Edge).
-    try{
-      const ns = 'http://www.w3.org/2000/svg';
-      const hostSvg = document.createElementNS(ns,'svg');
-      hostSvg.setAttribute('aria-hidden','true');
-      hostSvg.setAttribute('width','0');
-      hostSvg.setAttribute('height','0');
-      hostSvg.style.position = 'absolute';
-      hostSvg.style.left = '0';
-      hostSvg.style.top = '0';
-      hostSvg.style.pointerEvents = 'none';
-
-      const defs = document.createElementNS(ns,'defs');
-      const filter = document.createElementNS(ns,'filter');
-      filter.setAttribute('id','flame-filter');
-      // Use objectBoundingBox so it can apply to HTML image elements reliably
-      filter.setAttribute('filterUnits','objectBoundingBox');
-      filter.setAttribute('primitiveUnits','objectBoundingBox');
-
-      const turb = document.createElementNS(ns,'feTurbulence');
-      turb.setAttribute('type','fractalNoise');
-      turb.setAttribute('baseFrequency','0.01 0.02');
-      turb.setAttribute('numOctaves','2');
-      turb.setAttribute('seed','7');
-      turb.setAttribute('stitchTiles','noStitch');
-      turb.setAttribute('result','noise');
-
-      const disp = document.createElementNS(ns,'feDisplacementMap');
-      disp.setAttribute('in','SourceGraphic');
-      disp.setAttribute('in2','noise');
-      disp.setAttribute('scale','12');
-      disp.setAttribute('xChannelSelector','R');
-      disp.setAttribute('yChannelSelector','G');
-
-      filter.appendChild(turb);
-      filter.appendChild(disp);
-      defs.appendChild(filter);
-      hostSvg.appendChild(defs);
-      document.body.appendChild(hostSvg);
-
-      // Apply the filter to the <img> element
-      img.style.filter = 'url(#flame-filter)';
-
-      // Animate turb and disp similarly to the inline case
-      let t = 0;
-      function step(){
-        t += 0.008;
-        const f1 = 0.004 + Math.abs(Math.sin(t * 0.7)) * 0.01;
-        const f2 = 0.008 + Math.abs(Math.cos(t * 0.9)) * 0.012;
-        try{ turb.setAttribute('baseFrequency', `${f1} ${f2}`); }catch(_){ }
-        const scale = 8 + Math.abs(Math.sin(t * 0.6)) * 14;
-        try{ disp.setAttribute('scale', String(scale)); }catch(_){ }
-        requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }catch(err){
-      console.error('Fallback morph failed', err);
-    }
-    return;
+    console.error('Failed to load/inline SVG', e);
   }
 }
 
