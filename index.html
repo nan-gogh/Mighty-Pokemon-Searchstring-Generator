@@ -67,7 +67,7 @@ body > *{position:relative;z-index:1}
 header{
   background: transparent;
   color:var(--color-teal-primary); 
-  padding:clamp(8px, 2.5vw, 18px) clamp(12px, 3vw, 22px) clamp(4px, 1vw, 6px) clamp(12px, 3vw, 22px);
+  padding:clamp(8px, 2.5vw, 18px) 0 clamp(4px, 1vw, 6px) 0;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -84,6 +84,9 @@ header img{
   max-width: 92vw;
   object-fit: contain;
   border-radius:0;
+  /* pulsating lime glow on SVG paths */
+  filter: drop-shadow(0 0 20px var(--color-lime-bright));
+  animation: img-glow 3s ease-in-out infinite;
 }
 
 .header-actions{
@@ -100,32 +103,45 @@ header img{
 .header-actions .btn{
   padding:clamp(8px, 2vw, 10px) clamp(14px, 3vw, 18px);
   border-radius:var(--radius);
-  min-width: var(--header-control-effective);
+  /* match the card width so buttons visually enclose the card */
+  width: var(--header-control-effective);
   max-width:100%;
+  display:block;
+  margin:0 auto;
 }
 
 h1{
-  margin:0;
+  margin: clamp(8px, 2vw, 12px) auto 0 auto;
   /* scale the heading with the header control token so it visually spans the image width */
   font-size: clamp(12px, calc(var(--header-control-effective) * 0.09), 40px);
   font-weight:600;
   text-align:center;
-  white-space: nowrap; 
-  overflow: hidden; 
-  /*text-overflow: ellipsis;*/
-  /* match the image width token so the heading aligns to the same visual width */
+  /* allow wrapping on narrow screens so text remains centered */
+  white-space: normal;
+  /* allow descenders (g, y) to render without being clipped */
+  overflow: visible;
+  /* match the card width exactly so h1 stays centered at all zoom levels */
   width: var(--header-control-effective);
   max-width: 100%;
-  box-sizing:border-box;
-  align-self:center;
-  padding:0 clamp(8px, 2vw, 12px);
-  line-height:1.05;
+  box-sizing: border-box;
+  /* no horizontal padding - let text-align:center handle centering within the fixed width */
+  padding: 0;
+  /* slightly increased line-height and bottom padding to avoid clipping descenders */
+  line-height:1.15;
+  padding-bottom: clamp(4px, 1vw, 6px);
+  /* lime outline + pulsating glow */
+  /* primary outline for WebKit browsers (reduced thickness) */
+  -webkit-text-stroke: 0.25px var(--color-lime-bright);
+  /* text-stroke fallback via multiple tiny shadows for other browsers (thinner) */
+  text-shadow: -0.6px -0.6px 0 var(--color-lime-bright), 0.6px -0.6px 0 var(--color-lime-bright), -0.6px 0.6px 0 var(--color-lime-bright), 0.6px 0.6px 0 var(--color-lime-bright), 0 0 20px var(--color-lime-bright);
+  animation: h1-glow 3s ease-in-out infinite;
 }
 
 header h1:first-of-type{
   /* slightly smaller primary header scale to avoid oversized headings */
   font-size: clamp(16px, calc(var(--header-control-effective) * 0.105), 48px);
-  margin-bottom:clamp(4px, 1vw, 6px);
+  /* add extra breathing room under the primary header */
+  margin-bottom: clamp(12px, 3vw, 20px);
 }
 
 header h2{
@@ -159,10 +175,11 @@ header h2{
 
 .card{
   background:var(--color-lime-bright);
-  border-radius:clamp(20px, 4vw, 25px);
-  padding:clamp(40px, 4vw, 35px) clamp(12px, 3vw, 18px) clamp(12px, 3vw, 18px) clamp(12px, 3vw, 18px);
+  /*border-radius:clamp(20px, 4vw, 25px);*/
+  padding:clamp(25px, 4vw, 35px) clamp(12px, 3vw, 18px) clamp(25px, 3vw, 18px) clamp(12px, 3vw, 18px);
   margin-bottom:clamp(10px, 2.5vw, 16px);
-  margin-top:clamp(-47px, -8vw, -50px);
+  /* remove negative overlap so the card sits below the header */
+  margin-top: 20px;
   border:none;
   position:relative;
   z-index:1;
@@ -184,9 +201,9 @@ textarea{
   min-height:clamp(140px, 30vw, 220px);
   max-height:clamp(50vh, 70vh, 80vh);
   /* symmetric vertical / horizontal padding to avoid visual horizontal shift on narrow screens */
-  padding: 0;
+  padding: 0px;
   margin-top: clamp(12px, 3vw, 20px);
-  margin-left: clamp(2px, 3vw, 5px);
+  margin-left: clamp(2px, 0vw, 5px);
   border:none;
   background:var(--color-lime-bright);
   color:var(--color-teal-primary);
@@ -197,7 +214,9 @@ textarea{
   word-break:break-word;
   overflow:auto;
   overflow-wrap: anywhere;
-  scrollbar-width: thin;
+  /* hide visible scrollbars but keep scrolling functional */
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
   scrollbar-color: transparent transparent;
 }
 
@@ -206,10 +225,11 @@ textarea:focus{
   box-shadow:none;
 }
 
+/* hide webkit scrollbars */
 textarea::-webkit-scrollbar{
-  width:clamp(12px, 3vw, 24px);
-  height:clamp(8px, 2vw, 12px);
-  background:transparent;
+  width: 0px;
+  height: 0px;
+  background: transparent;
 }
 
 textarea::-webkit-scrollbar-track{
@@ -217,10 +237,9 @@ textarea::-webkit-scrollbar-track{
 }
 
 textarea::-webkit-scrollbar-thumb{
-  background: var(--color-teal-primary);
-  border:none;
-  opacity:0;
-  transition:opacity 420ms ease, background-color 320ms ease;
+  background: transparent;
+  border: none;
+  opacity: 0;
 }
 
 .card:hover textarea::-webkit-scrollbar-thumb,textarea:focus::-webkit-scrollbar-thumb{
@@ -269,7 +288,26 @@ textarea::-webkit-scrollbar-thumb{
   will-change: transform;
 }
 
-.btn[disabled],.btn:disabled{
+/* Info button positioned inside .card so its center aligns with the card's bottom edge */
+#mode-info-btn{
+  position: absolute;
+  left: 0;
+  top: 100%;
+  transform: translateY(-50%);
+  z-index: 30;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  /* center text content inside the anchored button across sizes/lines */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  white-space: normal;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+}
+
+.btn[disabled],.btn:disabled,button[disabled],button:disabled{
   cursor:not-allowed;
   pointer-events:none;
   color:rgba(255,255,255,0.85);
@@ -295,29 +333,34 @@ textarea::-webkit-scrollbar-thumb{
   color: var(--color-lime-bright);
   padding:clamp(12px, 3vw, 16px) clamp(20px, 4vw, 28px);
   font-weight: 600;
-  font-size:clamp(0.95rem, 2.5vw, 1.12rem);
+  font-size:clamp(0.95rem, 7.5vw, 1.48rem);
   cursor: pointer;
   /* sizing matches `.header-actions .btn` so it adapts the same on narrow screens */
-  min-width: var(--header-control-effective);
+  width: var(--header-control-effective);
   max-width: 100%;
-  width: auto;
+  box-sizing: border-box;
   display: inline-flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   border-radius:var(--radius);
   border:none;
-  position:relative;
-  z-index:10;
+  /* position the clipboard button so it spans the card and its center aligns with the top edge */
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateY(-50%);
+  z-index: 40;
 }
 
 .btn-clipboard.success{
   background: rgb(213, 255, 154);
   color: var(--color-teal-primary);
-  min-width: var(--header-control-effective);
+  width: var(--header-control-effective);
   max-width: 100%;
   border:none;
-  animation: btn-pulse 400ms ease-out 1, btn-glow 400ms ease-out 1;
+  /* use anchored animation so translateY(-50%) is preserved during the pulse */
+  animation: anchored-btn-pulse 400ms ease-out 1, btn-glow 400ms ease-out 1;
 }
 
 .btn-clipboard:hover{
@@ -325,54 +368,47 @@ textarea::-webkit-scrollbar-thumb{
   transform: scale(1.02);
 }
 
-#mode-info{
-  position:absolute;
-  z-index:50;
-  background:var(--color-bg-charcoal);
-  color:var(--color-teal-primary);
-  border:none;
-  padding:clamp(12px, 2.5vw, 14px);
-  border-radius:clamp(15px, 4vw, 25px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.55);
-  width:100%;
-  max-width:min(var(--header-control-effective), 92vw);
-  word-break:normal;
-  text-align: center;
-  font-size:clamp(0.8rem, 2vw, 0.9rem);
-  line-height:1.5;
-  left:50%;
-  top:0;
-  transform:translateX(-50%) translateY(-6px) scale(.98);
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transition:opacity 200ms ease, transform 220ms cubic-bezier(.2,0,.2,1), visibility 200ms;
-}
-
-#mode-info.open{
-  opacity:1;
-  transform:translateX(-50%) translateY(0) scale(1);
-  visibility:visible;
-  pointer-events:auto;
-}
-
 @keyframes btn-pulse{
-  0%{transform:scale(1);box-shadow:0 6px 18px rgba(43,138,62,0.06)}
-  50%{transform:scale(1.06);box-shadow:0 12px 30px rgba(43,138,62,0.14)}
-  100%{transform:scale(1);box-shadow:0 6px 18px rgba(43,138,62,0.06)}
+  0%{transform:scale(1);box-shadow:0 6px 18px rgba(213, 255, 154,0.06)}
+  50%{transform:scale(1.06);box-shadow:0 12px 30px rgba(213, 255, 154,0.14)}
+  100%{transform:scale(1);box-shadow:0 6px 18px rgba(213, 255, 154,0.06)}
+}
+
+@keyframes anchored-btn-pulse{
+  0%{transform:translateY(-50%) scale(1);box-shadow:0 6px 18px rgba(213, 255, 154,0.06)}
+  50%{transform:translateY(-50%) scale(1.06);box-shadow:0 12px 30px rgba(213, 255, 154,0.14)}
+  100%{transform:translateY(-50%) scale(1);box-shadow:0 6px 18px rgba(213, 255, 154,0.06)}
 }
 
 @keyframes btn-glow{
   0%{ box-shadow: 0 8px 22px rgba(213, 255, 154,0.10), 0 0 0 rgba(213, 255, 154,0); }
-  30%{ box-shadow: 0 26px 72px rgba(213, 255, 154,0.30), 0 0 60px rgba(213, 255, 154,0.24); }
-  60%{ box-shadow: 0 36px 110px rgba(213, 255, 154,0.40), 0 0 90px rgba(213, 255, 154,0.32); }
+  30%{ box-shadow: 0 26px 72px rgba(213, 255, 154,1.30), 0 0 60px rgba(213, 255, 154,1.24); }
+  60%{ box-shadow: 0 36px 110px rgba(213, 255, 154,5.40), 0 0 90px rgba(213, 255, 154,5.32); }
   100%{ box-shadow: 0 8px 22px rgba(213, 255, 154,0.10), 0 0 0 rgba(213, 255, 154,0); }
 }
  
 @keyframes btn-press{
-  0%{ transform: scale(1.02); }
-  50%{ transform: scale(0.98); }
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.02); }
  100%{ transform: scale(1); }
+}
+
+@keyframes anchored-btn-press{
+  0%{ transform: translateY(-50%) scale(1); }
+  50%{ transform: translateY(-50%) scale(1.02); }
+ 100%{ transform: translateY(-50%) scale(1); }
+}
+
+@keyframes h1-glow{
+  0%{ text-shadow: -0.6px -0.6px 0 var(--color-lime-bright), 0.6px -0.6px 0 var(--color-lime-bright), -0.6px 0.6px 0 var(--color-lime-bright), 0.6px 0.6px 0 var(--color-lime-bright), 0 0 20px var(--color-lime-bright), 0 0 30px rgba(213, 255, 154, 0.4); }
+  50%{ text-shadow: -0.6px -0.6px 0 var(--color-lime-bright), 0.6px -0.6px 0 var(--color-lime-bright), -0.6px 0.6px 0 var(--color-lime-bright), 0.6px 0.6px 0 var(--color-lime-bright), 0 0 30px var(--color-lime-bright), 0 0 50px rgba(213, 255, 154, 0.8), 0 0 70px rgba(213, 255, 154, 0.6); }
+  100%{ text-shadow: -0.6px -0.6px 0 var(--color-lime-bright), 0.6px -0.6px 0 var(--color-lime-bright), -0.6px 0.6px 0 var(--color-lime-bright), 0.6px 0.6px 0 var(--color-lime-bright), 0 0 20px var(--color-lime-bright), 0 0 30px rgba(213, 255, 154, 0.4); }
+}
+
+@keyframes img-glow{
+  0%{ filter: drop-shadow(0 0 20px var(--color-lime-bright)) drop-shadow(0 0 30px rgba(213, 255, 154, 0.4)); }
+  50%{ filter: drop-shadow(0 0 30px var(--color-lime-bright)) drop-shadow(0 0 50px rgba(213, 255, 154, 0.8)) drop-shadow(0 0 70px rgba(213, 255, 154, 0.6)); }
+  100%{ filter: drop-shadow(0 0 20px var(--color-lime-bright)) drop-shadow(0 0 30px rgba(213, 255, 154, 0.4)); }
 }
 
 .header-actions, .card {
@@ -380,6 +416,16 @@ textarea::-webkit-scrollbar-thumb{
   max-width: 100%;
 }
 /* small-screen media queries removed — layout relies on clamp() and tokens */
+/* Ensure anchored buttons keep their centering translate while hovered/active */
+#mode-info-btn:hover, .btn-clipboard:hover{
+  transform: translateY(-50%) scale(1.02);
+  box-shadow:0 10px 28px rgba(0,0,0,0.30);
+}
+
+/* Use anchored press animation for anchored buttons so translate is preserved */
+#mode-info-btn:active, .btn-clipboard:active{
+  animation: anchored-btn-press 220ms ease-out;
+}
 </style>
 </head>
 <body>
@@ -390,17 +436,11 @@ textarea::-webkit-scrollbar-thumb{
   <!--<h2>Mächtiger Suchstring</h2>-->
   <!--<p class="p-muted small">Mächtige Pokemon brauchen einen mächtigen Suchstring!</p>-->
   <div class="header-actions">
-    <div id="mode-info" aria-hidden="true" lang="de">
-    Füge den String in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deiner Sammlung zu finden.<br><br>
-    Die Suchleiste von Pokémon GO erlaubt nur einfache AND-Verknüpfungen (&) und unterstützt keine Klammern oder OR-Logik (|). Jede Kombination aus Pokémon, Form und Fangalter muss daher einzeln aufgelistet werden, damit alle mächtigen Pokémon korrekt erfasst werden.<br><br>
-    Mithilfe dieser disjunktiven Normalform (DNF) und einem automatischen Altersfilter entsteht ein sehr langer aber funktionaler Suchstring für mächtige Pokémon.
-    </div>
-    <button class="btn-clipboard" onclick="copyAndNotify(this)">Mächtiger Suchstring</button>
     <div class="card">
+      <button class="btn-clipboard">Mächtiger Suchstring</button>
       <textarea id="output" readonly></textarea>
+      <button id="mode-info-btn" class="btn">Info</button>
     </div>
-    <button class="btn" onclick="shareSite()">Teilen</button>
-    <button id="mode-info-btn" class="btn" onclick="toggleModeInfo()">Info</button>
   </div>
 </header>
 
@@ -415,7 +455,157 @@ const EVENT25_END   = new Date(Date.UTC(2025, 10, 16, 23, 59, 59));
 
 const output = document.getElementById('output');
 const infoBtn = document.getElementById('mode-info-btn');
-const info = document.getElementById('mode-info');
+
+// Load the external SVG logo, inline it, and apply a slow "flame" morph using
+// an SVG displacement filter (feTurbulence + feDisplacementMap). This affects
+// the SVG path boundaries and animates them without changing the raster image
+// boundary.
+async function loadAndMorphSvg(){
+  const img = document.querySelector('header img');
+  if(!img) return;
+  try{
+    const res = await fetch(img.getAttribute('src'));
+    if(!res.ok) return;
+    const text = await res.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'image/svg+xml');
+    const svg = doc.documentElement;
+    // Normalize sizing so CSS width token applies
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.style.width = 'var(--header-control-effective)';
+    svg.style.maxWidth = '92vw';
+
+    const ns = 'http://www.w3.org/2000/svg';
+    // Ensure we have a <defs> and a filter for displacement
+    let defs = svg.querySelector('defs');
+    if(!defs){ defs = document.createElementNS(ns,'defs'); svg.insertBefore(defs, svg.firstChild); }
+
+    const filter = document.createElementNS(ns,'filter');
+    filter.setAttribute('id','flame-filter');
+    filter.setAttribute('primitiveUnits','userSpaceOnUse');
+
+    const turb = document.createElementNS(ns,'feTurbulence');
+    turb.setAttribute('type','fractalNoise');
+    turb.setAttribute('baseFrequency','0.01 0.02');
+    turb.setAttribute('numOctaves','2');
+    turb.setAttribute('seed','7');
+    turb.setAttribute('stitchTiles','noStitch');
+    turb.setAttribute('result','noise');
+
+    const disp = document.createElementNS(ns,'feDisplacementMap');
+    disp.setAttribute('in','SourceGraphic');
+    disp.setAttribute('in2','noise');
+    disp.setAttribute('scale','12');
+    disp.setAttribute('xChannelSelector','R');
+    disp.setAttribute('yChannelSelector','G');
+
+    filter.appendChild(turb);
+    filter.appendChild(disp);
+    defs.appendChild(filter);
+
+    // Wrap visible children (after defs) into a group so we can apply the filter cleanly
+    const g = document.createElementNS(ns,'g');
+    // Move nodes that are not defs into the group
+    const children = Array.from(svg.childNodes).filter(n => n.nodeType === 1 && n.nodeName.toLowerCase() !== 'defs');
+    children.forEach(n => g.appendChild(n));
+    svg.appendChild(g);
+    g.setAttribute('filter','url(#flame-filter)');
+
+    // Replace the <img> with the inlined SVG
+    img.replaceWith(svg);
+
+    // Animate the turbulence and displacement for a slow flame effect
+    let t = 0;
+    function step(){
+      t += 0.008; // slow
+      const f1 = 0.004 + Math.abs(Math.sin(t * 0.7)) * 0.01; // X frequency
+      const f2 = 0.008 + Math.abs(Math.cos(t * 0.9)) * 0.012; // Y frequency
+      turb.setAttribute('baseFrequency', `${f1} ${f2}`);
+      const scale = 8 + Math.abs(Math.sin(t * 0.6)) * 14; // displacement scale
+      disp.setAttribute('scale', String(scale));
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }catch(e){
+    console.warn('Failed to load/inline SVG — falling back to raster filter. Error:', e);
+    // Fallback: create an SVG <defs> with the displacement filter in the document
+    // and apply it to the <img> via CSS `filter: url(#flame-filter)`. This will
+    // morph the rasterized image (not the vector paths) but still gives visible
+    // flame-like movement on browsers that block fetch for local files (Edge).
+    try{
+      const ns = 'http://www.w3.org/2000/svg';
+      const hostSvg = document.createElementNS(ns,'svg');
+      hostSvg.setAttribute('aria-hidden','true');
+      hostSvg.setAttribute('width','0');
+      hostSvg.setAttribute('height','0');
+      hostSvg.style.position = 'absolute';
+      hostSvg.style.left = '0';
+      hostSvg.style.top = '0';
+      hostSvg.style.pointerEvents = 'none';
+
+      const defs = document.createElementNS(ns,'defs');
+      const filter = document.createElementNS(ns,'filter');
+      filter.setAttribute('id','flame-filter');
+      // Use objectBoundingBox so it can apply to HTML image elements reliably
+      filter.setAttribute('filterUnits','objectBoundingBox');
+      filter.setAttribute('primitiveUnits','objectBoundingBox');
+
+      const turb = document.createElementNS(ns,'feTurbulence');
+      turb.setAttribute('type','fractalNoise');
+      turb.setAttribute('baseFrequency','0.01 0.02');
+      turb.setAttribute('numOctaves','2');
+      turb.setAttribute('seed','7');
+      turb.setAttribute('stitchTiles','noStitch');
+      turb.setAttribute('result','noise');
+
+      const disp = document.createElementNS(ns,'feDisplacementMap');
+      disp.setAttribute('in','SourceGraphic');
+      disp.setAttribute('in2','noise');
+      disp.setAttribute('scale','12');
+      disp.setAttribute('xChannelSelector','R');
+      disp.setAttribute('yChannelSelector','G');
+
+      filter.appendChild(turb);
+      filter.appendChild(disp);
+      defs.appendChild(filter);
+      hostSvg.appendChild(defs);
+      document.body.appendChild(hostSvg);
+
+      // Apply the filter to the <img> element
+      img.style.filter = 'url(#flame-filter)';
+
+      // Animate turb and disp similarly to the inline case
+      let t = 0;
+      function step(){
+        t += 0.008;
+        const f1 = 0.004 + Math.abs(Math.sin(t * 0.7)) * 0.01;
+        const f2 = 0.008 + Math.abs(Math.cos(t * 0.9)) * 0.012;
+        try{ turb.setAttribute('baseFrequency', `${f1} ${f2}`); }catch(_){ }
+        const scale = 8 + Math.abs(Math.sin(t * 0.6)) * 14;
+        try{ disp.setAttribute('scale', String(scale)); }catch(_){ }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }catch(err){
+      console.error('Fallback morph failed', err);
+    }
+    return;
+  }
+}
+
+loadAndMorphSvg();
+
+// NOTE: no global busy flag — button animations are reset on each click so
+// rapid clicks are allowed while the visual success state is kept until
+// the last timeout completes.
+
+/* Info text previously shown in the popover — kept as a JS constant now */
+const INFO_TEXT = `Füge den String in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deiner Sammlung zu finden.
+
+Die Suchleiste von Pokémon GO erlaubt nur einfache AND-Verknüpfungen (&) und unterstützt keine Klammern oder OR-Logik (|). Jede Kombination aus Pokémon, Form und Fangalter muss daher einzeln aufgelistet werden, damit alle mächtigen Pokémon korrekt erfasst werden.
+
+Mithilfe dieser disjunktiven Normalform (DNF) und einem automatischen Altersfilter entsteht ein sehr langer aber funktionaler Suchstring für mächtige Pokémon.`;
 
 function daysSince(date){
   const msPerDay = 1000*60*60*24;
@@ -440,11 +630,19 @@ function generateFinalString(){
 }
 
 let cachedString = '';
+let _prevCachedString = null;
 
 function renderPreview(){
   if(!output) return;
   cachedString = generateFinalString();
   output.value = cachedString;
+  // if info was shown in the textarea, close that state and update the Info button label
+  try{
+    if(infoBtn && infoBtn.getAttribute('data-info-open') === 'true'){
+      infoBtn.setAttribute('data-info-open','false');
+      infoBtn.innerText = 'Info';
+    }
+  }catch(e){}
   requestAnimationFrame(() => { if(output) output.scrollTop = 0; });
 }
 
@@ -462,43 +660,73 @@ function scheduleMidnightUpdate(){
 }
 
 function toggleModeInfo(){
-  if(!infoBtn || !info) return;
-  const isOpen = infoBtn.getAttribute('aria-expanded') === 'true';
-  setPopoverState(!isOpen);
+  if(!infoBtn || !output) return;
+  const isOpen = infoBtn.getAttribute('data-info-open') === 'true';
+
+  if(!isOpen){
+    _prevCachedString = cachedString;
+    cachedString = INFO_TEXT;
+    output.value = INFO_TEXT;
+    requestAnimationFrame(()=>{ if(output) output.scrollTop = 0; });
+    infoBtn.setAttribute('data-info-open', 'true');
+    infoBtn.innerText = 'Zurück';
+  } else {
+    infoBtn.setAttribute('data-info-open', 'false');
+    infoBtn.innerText = 'Info';
+    if(_prevCachedString !== null){
+      cachedString = _prevCachedString;
+      _prevCachedString = null;
+      output.value = cachedString;
+      requestAnimationFrame(()=>{ if(output) output.scrollTop = 0; });
+    } else {
+      renderPreview();
+    }
+  }
 }
-
-function setPopoverState(open){
-  if(!infoBtn || !info) return;
-  infoBtn.setAttribute('aria-expanded', open);
-  info.classList.toggle('open', open);
-  info.setAttribute('aria-hidden', !open);
-}
-
-document.addEventListener('click', (e)=>{
-  if(!info?.classList.contains('open')) return;
-  if(!info.contains(e.target) && !infoBtn.contains(e.target)) setPopoverState(false);
-}, {passive: true});
-
-document.addEventListener('keydown', (e)=>{ 
-  if(e.key === 'Escape' && info?.classList.contains('open')) setPopoverState(false);
-});
 
 function _setButtonState(btn, text, state){
   if(!btn) return;
   if(btn._timeout) clearTimeout(btn._timeout);
   if(!btn._origText) btn._origText = btn.innerText;
-  if(!btn._origDisabled) btn._origDisabled = btn.disabled;
-  
+  // we don't change or rely on `disabled` here — allow repeated clicks.
+
+  // preserve the button's current layout size so short temporary labels (like "✓")
+  // don't cause the button to shrink. Store existing inline minHeight to restore later.
+  try{
+    if(!btn._savedMinHeight){
+      btn._savedMinHeight = btn.style.minHeight || '';
+      const rect = btn.getBoundingClientRect();
+      if(rect && rect.height){
+        btn.style.minHeight = rect.height + 'px';
+      }
+    }
+  }catch(e){}
+
+  // Update label and restart the visual animation for the requested state.
   btn.innerText = text;
+  // remove any previous state classes first
   btn.classList.remove('success','error');
-  if(state) btn.classList.add(state);
-  btn.disabled = true;
+  if(state){
+    // force-animation-restart: clear inline animation, force reflow, then add class
+    btn.style.animation = 'none';
+    // read a layout property to flush style changes
+    void btn.offsetWidth;
+    btn.classList.add(state);
+    // allow future CSS animations to run normally
+    btn.style.animation = '';
+  }
   
-  const ms = btn.classList.contains('btn-clipboard') ? 400 : 360;
+  const ms = btn.classList.contains('btn-clipboard') ? 300 : 360;
   btn._timeout = setTimeout(()=>{
+    // restore original text and any preserved minHeight
     btn.innerText = btn._origText;
     btn.classList.remove('success','error');
-    btn.disabled = btn._origDisabled;
+    try{
+      if(btn._savedMinHeight !== undefined){
+        btn.style.minHeight = btn._savedMinHeight || '';
+        delete btn._savedMinHeight;
+      }
+    }catch(e){}
     delete btn._timeout;
   }, ms);
 }
@@ -513,15 +741,24 @@ function copyAndNotify(btn){
   });
 }
 
-function shareSite(){
-  if(navigator.share){
-    navigator.share({ 
-      title: document.title || 'Mächtiger Suchstring Generator', 
-      text: 'Mächtige Pokémon brauchen einen mächtigen Suchstring!', 
-      url: location.href 
-    }).catch(()=>{});
+// Attach event listeners instead of using inline onclick attributes. Listeners
+// check `uiBusy` and will ignore clicks while busy.
+const _attachUIListeners = ()=>{
+  const clipboardEl = document.querySelector('.btn-clipboard');
+  if(clipboardEl){
+    clipboardEl.addEventListener('click', (e)=>{
+      copyAndNotify(clipboardEl);
+    });
   }
-}
+  if(infoBtn){
+    infoBtn.addEventListener('click', (e)=>{
+      toggleModeInfo();
+    });
+  }
+};
+
+_attachUIListeners();
+
 
 renderPreview();
 scheduleMidnightUpdate();
