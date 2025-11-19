@@ -212,6 +212,8 @@ header h2{
   transform: translateY(0);
   transition: max-height var(--transition-smooth), opacity 420ms ease, transform 420ms ease, padding 420ms ease, margin 420ms ease;
   will-change: transform;
+  /* steady glow to match header/controls (no pulsation) */
+  box-shadow: 0 26px 72px rgba(97,196,151,2.08), 0 0 40px rgba(213,255,154,2.18);
 }
 
 textarea{
@@ -433,6 +435,10 @@ textarea::-webkit-scrollbar-thumb{
   0%{ transform: translateY(0); }
   50%{ transform: translateY(-6px); }
   100%{ transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  header img, h1, .card{ animation: none !important; }
 }
 
 .header-actions, .card {
