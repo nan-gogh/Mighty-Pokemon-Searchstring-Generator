@@ -38,6 +38,74 @@
   --lime-40: rgba(213,255,154,0.40);
   --lime-60: rgba(213,255,154,0.60);
   --lime-100: rgba(213,255,154,1);
+  /* Mini-particle tuning (descriptive / editable) */
+  --mini-count: 10; /* default number of mini particles */
+  --mini-dur: 1s; /* particle life duration (seconds) */
+  --mini-size-min: 4px; /* minimum particle size */
+  --mini-size-max: 24px; /* maximum particle size */
+  --mini-horizontal-spread-mult: 0.5; /* fraction of container width used for spread */
+  --mini-vertical-spread-mult: 0.5; /* fraction of container height used for spread */
+  --mini-jitter-x: 30px; /* additional horizontal jitter */
+  --mini-jitter-y: 24px; /* additional vertical jitter */
+  --mini-spawn-down-ratio: 0.06; /* fraction of container height to nudge spawn down */
+  --mini-spawn-nudge-ratio: 0.06; /* extra nudge as fraction of container height */
+  --mini-blur: 3px; /* blur applied to mini particles */
+  /* Global (page) particle tuning */
+  --particles-count: 12; /* default number of global particles */
+  --particles-dur-min: 6s; /* min particle lifetime */
+  --particles-dur-max: 14s; /* max particle lifetime */
+  --particles-size-min: 8px; /* min size */
+  --particles-size-max: 30px; /* max size */
+  --particles-drift-max: 120px; /* max horizontal drift magnitude (px) */
+  --particles-delay-range: 10s; /* range for negative start delays (s) */
+  --particles-blur: 6px; /* blur for global particles */
+  --particles-opacity-peak: 1; /* peak opacity when visible */
+  --particles-travel-vh: 640vh; /* translateY travel for global particles */
+  /* Bottom pulse (pulsating linear gradient from below) */
+  --bottom-pulse-height: 50vh; /* height of the gradient band */
+  --bottom-pulse-opacity: 0.5; /* peak opacity of pulse */
+  --bottom-pulse-duration: 3800ms; /* pulse cycle duration */
+  --bottom-pulse-max: 100vh; /* maximum height (reach half the viewport) */
+}
+
+/* Text selection styling — match the site's lime/teal theme.
+   Use CSS variables so users can tweak selection colors in :root. */
+::selection{ background: var(--color-teal-primary); color: var(--color-lime-bright); }
+::-moz-selection{ background: var(--color-teal-primary); color: var(--color-lime-bright); }
+
+/* Also ensure selection inside form controls (textarea/input) uses same colors */
+textarea::selection, input::selection, select::selection{
+  background: var(--color-teal-primary);
+  color: var(--color-lime-bright);
+}
+
+/* Bottom pulse: a subtle animated linear gradient rising from the viewport bottom */
+.bottom-pulse{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--bottom-pulse-height, 22vh);
+  pointer-events: none;
+  z-index: 0; /* behind main content (body > * has z-index:1) */
+  background: linear-gradient(to top, var(--color-lime-bright) 0%, rgba(213,255,154,0.66) 18%, rgba(213,255,154,0.18) 36%, transparent 100%);
+  opacity: 0;
+  will-change: height, opacity;
+  mix-blend-mode: screen;
+  filter: blur(14px);
+  animation: bottom-pulse-anim var(--bottom-pulse-duration, 3800ms) ease-in-out infinite;
+}
+
+@keyframes bottom-pulse-anim{
+  0%{ height: var(--bottom-pulse-height, 50vh); opacity: 0.25; }
+  /*20%{ height: calc(var(--bottom-pulse-max, 50vh) * 0.5); opacity: calc(var(--bottom-pulse-opacity, 0.14) * 0.5); }*/
+  50%{ height: var(--bottom-pulse-max, 100vh); opacity: 0.75; }
+  /*80%{ height: calc(var(--bottom-pulse-max, 50vh) * 0.5); opacity: calc(var(--bottom-pulse-opacity, 0.14) * 0.45); }*/
+  100%{ height: var(--bottom-pulse-height, 50vh); opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .bottom-pulse{ animation: none; opacity: var(--bottom-pulse-opacity, 0.14); height: var(--bottom-pulse-height, 50vh); }
 }
 
 html{box-sizing:border-box}
@@ -96,6 +164,18 @@ body::before{
   mask-image: linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,1));
 }
 
+/* Radial glow positioned at crown location, covering full viewport without clipping */
+body::after{
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at var(--glow-x, 50%) var(--glow-y, 30%), var(--color-teal-primary) 0%, var(--color-teal-primary) 10%, var(--lime-16) 20%, transparent 35%);
+  filter: blur(14px);
+  opacity: 0.95;
+}
+
 body > *{position:relative;z-index:1}
 
 header{
@@ -122,20 +202,6 @@ header{
   /* small upward nudge so the header image visually sits closer to the top */
   --header-y-offset: clamp(-12px, -3.5vh, -36px);
   transform: translateY(var(--header-y-offset));
-}
-
-/* Soft radial lime glow positioned behind the SVG layers but inside the container */
-.header-svg-container::before{
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: inherit;
-    background: radial-gradient(circle at 50% 70%, var(--color-teal-primary) 0%, var(--color-teal-primary) 30%, var(--lime-16) 50%, transparent 60%);
-  filter: blur(14px);
-  transform: translateZ(0) scale(1.25);
-  opacity: 0.95;
 }
 
 .header-crown, .header-energy{
@@ -481,7 +547,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   max-width: 100%;
   border:none;
   /* use shared pulse animation which respects the --anchor variable */
-  animation: btn-pulse 1000ms ease-out 1, btn-glow 1000ms ease-out 1;
+  animation: btn-pulse 600ms ease-out 1, btn-glow 600ms ease-out 1;
 }
 
 .btn-clipboard:hover{
@@ -551,7 +617,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   bottom:0;
   background: radial-gradient(circle at 40% 30%, var(--lime-95) 0%, var(--lime-55) 30%, var(--glow-mid) 60%, rgba(97,196,151,0) 100%);
   border-radius:50%;
-  filter: blur(6px);
+  filter: blur(var(--particles-blur, 6px));
   opacity:0;
   transform: translateY(0) translateX(0) scale(1);
   will-change: transform, opacity, filter;
@@ -568,16 +634,17 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   height:100%;
   pointer-events:none;
   z-index:10002; /* above crown (10001) */
+  /* keep overflow visible so particles can escape upward beyond container */
   overflow:visible;
+  /* ensure the container itself doesn't contribute to layout overflow */
+  contain: layout;
 }
 .mini-particles .particle-mini{
   position:absolute;
-  /*bottom:8%;*/
   /* use a solid, fully-opaque color for high visibility during testing */
   background: var(--lime-100);
   border-radius:50%;
-  /* reduced blur for crisper, more defined mini-particles during testing */
-  /*filter: blur(1px);*/
+  filter: blur(var(--mini-blur, 1px));
   opacity:1; /* start fully opaque; keyframes will keep them visible until near the end */
   transform: translateY(0) translateX(0) scale(1);
   will-change: transform, opacity, filter;
@@ -586,10 +653,83 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   animation: mini-particle-up var(--dur, 1s) linear infinite;
 }
 
+/* Click / touch pulse animation (spawn at pointer position) */
+:root{
+  --click-pulse-color: rgba(213,255,154,0.9);
+  --click-pulse-size: 120px; /* default max size of pulse */
+  --click-pulse-duration: 520ms;
+}
+.click-pulse{
+  z-index:10003;
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, var(--color-teal-primary) 0%, var(--color-teal-primary) 50%, var(--color-lime-bright) 60%, var(--lime-06) 70%, var(--lime-06) 100%);
+  transform: translate(-50%, -50%) scale(0.2);
+  opacity: 0;
+  will-change: transform, opacity;
+  /*mix-blend-mode: screen;*/
+  animation: click-pulse-grow var(--click-pulse-duration, 520ms) ease-out forwards;
+}
+
+@keyframes click-pulse-grow{
+  0%{ opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+  30%{ opacity: 0.1; transform: translate(-50%, -50%) scale(0.9); }
+  100%{ opacity: 0; transform: translate(-50%, -50%) scale(1.4); }
+}
+
+/* Inline SVG star wrapper (uses provided mighty_click.svg content). */
+.click-star{
+  z-index:10003;
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.22);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: click-star-grow var(--click-pulse-duration, 520ms) ease-out forwards;
+  display: inline-block;
+  /*mix-blend-mode: screen;*/
+  filter: drop-shadow(0 0 20px var(--color-lime-bright));
+}
+.click-star svg{ display:block; width:100%; height:100%; }
+@keyframes click-star-grow{
+  0%{ opacity: 0; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(0.22); }
+  25%{ opacity: 0.75; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(0.7); }
+  50%{ opacity: 0.25; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(0.88); }
+  100%{ opacity: 0; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(1.3); }
+}
+
+/* Click burst particles (short-lived radial burst atop the pulse) */
+:root{
+  --click-burst-count: 12;
+  --click-burst-size-min: 4px;
+  --click-burst-size-max: 10px;
+  --click-burst-radius-min: 24px;
+  --click-burst-radius-max: 96px;
+  --click-burst-duration: 520ms;
+}
+.click-burst-particle{
+  z-index:10004;
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, var(--lime-95) 0%, var(--lime-55) 30%, rgba(97,196,151,0) 80%);
+  opacity: 1;
+  will-change: transform, opacity;
+  mix-blend-mode: screen;
+  animation: burst-fly var(--click-burst-duration, 520ms) cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+@keyframes burst-fly{
+  0%{ opacity: 1; transform: translate3d(0,0,0) scale(0); }
+  /*50%{ opacity: 1; transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) scale(0.6); }*/
+  100%{ opacity: 0; transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) scale(1); }
+}
+
 @keyframes mini-particle-up{
   0%{ opacity: 0; transform: translateY(0) translateX(0) scale(0); }
-  5%{ opacity: 1; transform: translateY(0) translateX(0) scale(0.5); }
-  50%{ opacity: 1; transform: translateY(-2750) translateX(0) scale(1); }
+  5%{ opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+  50%{ opacity: 1; transform: translateY(-2750) translateX(0) scale(2); }
   /* remain fully opaque for the majority of the animation for testing visibility */
   /*95%{ opacity: 1; transform: translateY(-2500%) translateX(0px) scale(0.35); }*/
   100%{ opacity: 0; transform: translateY(-3000%) translateX(0px) scale(0.3); }
@@ -599,15 +739,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   0%{ opacity: 0; transform: translateY(0) translateX(0) scale(1); }
   8%{ opacity: 1; }
   /* extend the global particles' travel so they float further up the viewport */
-  100%{ opacity: 0; transform: translateY(-1280vh) translateX(var(--drift, 0px)) scale(0.6); }
-}
-
-@media (prefers-reduced-motion: reduce){
-  .particles .particle{ animation: none !important; opacity: 0 !important; }
-}
-
-@media (prefers-reduced-motion: reduce){
-  .header-crown, .header-energy, h1, .card{ animation: none !important; }
+  100%{ opacity: 0; transform: translateY(calc(-1 * var(--particles-travel-vh, 320vh))) translateX(var(--drift, 0px)) scale(0.6); }
 }
 
 .header-actions, .card {
@@ -628,6 +760,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 </style>
 </head>
 <body>
+  <div class="bottom-pulse" aria-hidden="true"></div>
   <div class="particles" aria-hidden="true"></div>
 
 <header>
@@ -696,17 +829,41 @@ function initParticles(count = 12){
     const container = document.querySelector('.particles');
     if(!container) return;
     container.innerHTML = '';
-    for(let i=0;i<count;i++){
+    // Read tuning from CSS variables so values are editable via :root
+    const root = getComputedStyle(document.documentElement);
+    const cssNum = (name, fallback=0) => {
+      const v = root.getPropertyValue(name);
+      if(!v) return fallback;
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : fallback;
+    };
+
+    const cfg = {
+      count: count || Math.max(1, Math.round(cssNum('--particles-count', 12))),
+      durMin: cssNum('--particles-dur-min', 6),
+      durMax: cssNum('--particles-dur-max', 14),
+      sizeMin: cssNum('--particles-size-min', 8),
+      sizeMax: cssNum('--particles-size-max', 30),
+      driftMax: cssNum('--particles-drift-max', 120),
+      delayRange: cssNum('--particles-delay-range', 10)
+    };
+
+    for(let i=0;i<cfg.count;i++){
       const p = document.createElement('div');
       p.className = 'particle';
       // Randomize horizontal position across the page width
       const left = Math.round(Math.random()*100);
       // start near the bottom area (0% - 10%) so particles originate from the bottom
-      const bottom = Math.random()*10; 
-      const size = (Math.random()*22)+8; // 8px - 30px
-      const dur = (Math.random()*8)+6; // 6s - 14s
-      const delay = Math.random()*-10; // negative so some start midway
-      const drift = (Math.random()*240 - 120) + 'px';
+      const bottom = Math.random()*10;
+      // size between configured min/max
+      const size = Math.round(Math.random()*(cfg.sizeMax - cfg.sizeMin) + cfg.sizeMin);
+      // duration between min/max (seconds)
+      const dur = (Math.random()*(cfg.durMax - cfg.durMin)) + cfg.durMin;
+      // negative delay so some start mid-animation
+      const delay = -Math.random()*cfg.delayRange;
+      // horizontal drift in px centered around 0
+      const drift = (Math.random()* (cfg.driftMax*2) - cfg.driftMax) + 'px';
+
       p.style.left = left + '%';
       p.style.bottom = bottom + '%';
       p.style.width = size + 'px';
@@ -731,11 +888,34 @@ function initMiniParticles(count = 10){
     // find an energy layer to align spawn to its visual center if present
     const crownEl = document.querySelector('.header-svg-container .header-crown') || document.querySelector('.header-crown');
     const energyEl = document.querySelector('.header-svg-container .header-energy') || document.querySelector('.header-energy');
+    // Read tuning values from CSS custom properties (exposed in :root).
+    const root = getComputedStyle(document.documentElement);
+    const cssNum = (name, fallback=0) => {
+      const v = root.getPropertyValue(name);
+      if(!v) return fallback;
+      // parseFloat handles values with units like '12px' or '0.28s'
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : fallback;
+    };
+
+    const cfg = {
+      count: (count || Math.max(1, Math.round(cssNum('--mini-count', 10)))),
+      dur: cssNum('--mini-dur', 0.28),
+      sizeMin: cssNum('--mini-size-min', 4),
+      sizeMax: cssNum('--mini-size-max', 12),
+      horizontalSpreadMult: cssNum('--mini-horizontal-spread-mult', 0.5),
+      verticalSpreadMult: cssNum('--mini-vertical-spread-mult', 0.35),
+      jitterX: cssNum('--mini-jitter-x', 30),
+      jitterY: cssNum('--mini-jitter-y', 24),
+      spawnDownRatio: cssNum('--mini-spawn-down-ratio', 0.06),
+      spawnNudgeRatio: cssNum('--mini-spawn-nudge-ratio', 0.06),
+    };
+
     // default spawn center in pixels (relative to container)
     // We'll compute spawn coordinates based on the crown if present, otherwise energy, otherwise container center.
-    const spawnDownRatio = -0.25; // fraction of container height to push spawn slightly downward
+    const spawnDownRatio = cfg.spawnDownRatio; // fraction of container height to push spawn slightly downward
     // extra pixel nudge (fraction of container height) to push spawn a bit lower
-    const spawnNudgePx = rect.height * 0.1; // 6% of container height
+    const spawnNudgePx = rect.height * cfg.spawnNudgeRatio;
     let spawnCenterX = rect.width * 0.5;
     let spawnCenterYfromTop = rect.height * 0.45 + rect.height * spawnDownRatio + spawnNudgePx; // px from top
 
@@ -754,55 +934,66 @@ function initMiniParticles(count = 10){
       spawnCenterYfromTop = (energyBottomY - rect.top) + rect.height * (spawnDownRatio * 0.5) + spawnNudgePx;
     }
 
-    // Wider spawn area around the selected base point (crown/energy/container)
-    const horizontalSpread = Math.max(120, rect.width * 0.6); // px
-    const verticalSpread = Math.max(40, rect.height * 0.45); // px
-    for(let i=0;i<count;i++){
+    // We'll compute spreads/sizes relative to the container rect so that
+    // particle spawn range and sizes remain proportional across zooms
+    // and viewport changes.
+    for(let i=0;i<cfg.count;i++){
       const p = document.createElement('div');
       p.className = 'particle-mini';
-      // pick a point in a wider box around the base point with jitter
-      const jitterX = (Math.random() * 60) - 30; // -30px .. +30px
-      const jitterY = (Math.random() * 48) - 24; // -24px .. +24px
-
-      const leftPx = spawnCenterX + (Math.random() - 0.5) * horizontalSpread + jitterX;
-      const topPx = spawnCenterYfromTop + (Math.random() - 0.5) * verticalSpread + jitterY;
-      const leftPct = rect.width > 0 ? (leftPx / rect.width) * 100 : 50;
-      const topPct = rect.height > 0 ? (topPx / rect.height) * 100 : 30;
-
-      // Uniform appearance: size and duration fixed so only spawn position varies
-      const size = 8; // uniform size in px
-      const dur = 0.28; // uniform duration in seconds
-      // randomize spawn timing: negative values start mid-animation
-      const delay = (Math.random() * 0.6) - 0.3; // -0.3s .. +0.3s
+      // We'll compute the exact spawn and size inside `reposition` so
+      // every call sees up-to-date layout metrics (handles zoom/viewport changes).
+      const dur = cfg.dur; // uniform duration in seconds
       const drift = '0px';
-
-      p.style.left = leftPct + '%';
-      p.style.top = topPct + '%';
-      p.style.width = size + 'px';
-      p.style.height = size + 'px';
-      p.style.filter = 'blur(4px)';
       p.style.setProperty('--dur', dur + 's');
       p.style.setProperty('--drift', drift);
-      p.style.setProperty('animation-delay', delay + 's');
 
-      // On each animation iteration reposition the particle to a new random
-      // point around the same spawn center and give it a slight random delay
-      // so particles don't sync across respawns.
       const reposition = () => {
         try{
           const r = container.getBoundingClientRect();
-          const xPx = spawnCenterX + (Math.random() - 0.5) * horizontalSpread + (Math.random() * 60 - 30);
-          const yPx = spawnCenterYfromTop + (Math.random() - 0.5) * verticalSpread + (Math.random() * 48 - 24) + spawnNudgePx;
+          // recompute spawn center relative to current rect so zoom changes are handled
+          let baseX = r.width * 0.5;
+          let baseY = r.height * 0.45 + r.height * spawnDownRatio + (r.height * 0.06);
+          if(crownEl){
+            const cRect = crownEl.getBoundingClientRect();
+            const crownCenterX = cRect.left + cRect.width * 0.5;
+            const crownBottomY = cRect.top + cRect.height;
+            baseX = crownCenterX - r.left;
+            baseY = (crownBottomY - r.top) + r.height * (spawnDownRatio * 0.5) + (r.height * 0.06);
+          } else if(energyEl){
+            const eRect = energyEl.getBoundingClientRect();
+            const energyCenterX = eRect.left + eRect.width * 0.5;
+            const energyBottomY = eRect.top + eRect.height;
+            baseX = energyCenterX - r.left;
+            baseY = (energyBottomY - r.top) + r.height * (spawnDownRatio * 0.5) + (r.height * 0.06);
+          }
+
+          // spreads proportional to container size, using exposed multipliers
+          const horizontalSpread = Math.max(20, r.width * cfg.horizontalSpreadMult); // px
+          const verticalSpread = Math.max(16, r.height * cfg.verticalSpreadMult); // px
+
+          const jitterX = (Math.random() * (cfg.jitterX*2)) - cfg.jitterX;
+          const jitterY = (Math.random() * (cfg.jitterY*2)) - cfg.jitterY;
+          const xPx = baseX + (Math.random() - 0.5) * horizontalSpread + jitterX;
+          const yPx = baseY + (Math.random() - 0.5) * verticalSpread + jitterY;
           const xPct = r.width > 0 ? (xPx / r.width) * 100 : 50;
           const yPct = r.height > 0 ? (yPx / r.height) * 100 : 30;
+
+          // size proportional to container but clamped to avoid overly large particles on small screens
+          const natural = Math.round(r.width * 0.02);
+          const size = Math.max(cfg.sizeMin, Math.min(cfg.sizeMax, natural));
+
           p.style.left = Math.min(100, Math.max(0, xPct)).toFixed(4) + '%';
           p.style.top = Math.min(100, Math.max(0, yPct)).toFixed(4) + '%';
-          // small random delay so particles respawn with slight phase differences
+          p.style.width = size + 'px';
+          p.style.height = size + 'px';
+          // small randomized phase offset so particles don't sync
           p.style.setProperty('animation-delay', ((Math.random() * 0.6) - 0.3) + 's');
         }catch(e){/* ignore */}
       };
-      p.addEventListener('animationiteration', reposition);
 
+      // reposition once to set initial location, then on each iteration
+      reposition();
+      p.addEventListener('animationiteration', reposition);
       container.appendChild(p);
     }
   }catch(e){/* ignore */}
@@ -1068,12 +1259,36 @@ const _attachUIListeners = ()=>{
 _attachUIListeners();
 
 
+// Update glow position to follow crown location
+function updateGlowPosition(){
+  try{
+    const crown = document.querySelector('.header-crown');
+    if(!crown) return;
+    const rect = crown.getBoundingClientRect();
+    const x = ((rect.left + rect.width/2) / window.innerWidth) * 100;
+    const y = ((rect.top + rect.height * 0.7) / window.innerHeight) * 100;
+    document.documentElement.style.setProperty('--glow-x', x + '%');
+    document.documentElement.style.setProperty('--glow-y', y + '%');
+  }catch(e){}
+}
+
 renderPreview();
 scheduleMidnightUpdate();
 // initialize particles after rendering so header sizes are known
 initParticles(12);
 // initialize mini particles (inside header) after main particles
 initMiniParticles(10);
+// Position the glow initially (defer to next frame to ensure layout is complete)
+requestAnimationFrame(()=> requestAnimationFrame(updateGlowPosition));
+// Update glow when crown image loads
+const crownImg = document.querySelector('.header-crown');
+if(crownImg){
+  if(crownImg.complete){
+    requestAnimationFrame(updateGlowPosition);
+  } else {
+    crownImg.addEventListener('load', ()=> requestAnimationFrame(updateGlowPosition));
+  }
+}
 // Recreate particles on resize (debounced) so positions remain distributed
 let _particleResizeTimer;
 window.addEventListener('resize', ()=>{
@@ -1081,8 +1296,23 @@ window.addEventListener('resize', ()=>{
   _particleResizeTimer = setTimeout(()=>{
     initParticles(12);
     initMiniParticles(10);
+    updateGlowPosition();
   }, 200);
 });
+// Some browsers (mobile pinch-zoom / desktop zoom) expose a visualViewport
+// object which changes when the page is zoomed. Listen to it and re-create
+// particles so spawn ranges/sizes stay proportional when the user zooms.
+if(window.visualViewport){
+  let _vvTimer;
+  window.visualViewport.addEventListener('resize', ()=>{
+    if(_vvTimer) clearTimeout(_vvTimer);
+    _vvTimer = setTimeout(()=>{
+      initParticles(12);
+      initMiniParticles(10);
+      updateGlowPosition();
+    }, 150);
+  });
+}
 
 document.addEventListener('visibilitychange', ()=>{ !document.hidden && (renderPreview(), scheduleMidnightUpdate()); });
 
@@ -1126,6 +1356,111 @@ document.addEventListener('visibilitychange', ()=>{ !document.hidden && (renderP
   } else {
     document.querySelectorAll('.header-energy').forEach(makeBumper);
   }
+})();
+
+// Click / touch position pulse
+(function(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  function isInteractive(el){
+    return !!el.closest('button, a, textarea, input, select, .btn, .btn-clipboard, #mode-info-btn');
+  }
+
+  function emitPulse(x, y, container){
+    try{
+      // insert the provided mighty_click.svg inline for performant star pulse
+      const wrapper = document.createElement('div');
+      wrapper.className = 'click-star';
+      const root = getComputedStyle(document.documentElement);
+      const maxSizeVal = root.getPropertyValue('--click-pulse-size') || '120px';
+      const maxSize = parseFloat(maxSizeVal) || 120;
+      // small randomization of size
+      const size = Math.round((maxSize * 0.6) + (Math.random() * maxSize * 0.4));
+      wrapper.style.width = size + 'px';
+      wrapper.style.height = size + 'px';
+
+      // inline SVG content (mighty_click.svg) — kept compact and without heavy filters
+      const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 117.8 117.8" aria-hidden="true" focusable="false">
+  <defs>
+    <style>
+      .cls-1{fill:#d5ff9a}
+      .cls-2{fill:#61c497}
+    </style>
+  </defs>
+  <g>
+    <g>
+      <path class="cls-2" d="M114.12,58.9c0-2.19.79-4.89,1.63-7.74,1.53-5.19,3.26-11.07.89-16.66-2.38-5.62-7.74-8.37-12.47-10.79-2.5-1.28-4.86-2.49-6.22-3.86-1.37-1.37-2.58-3.73-3.86-6.22-2.43-4.73-5.18-10.1-10.79-12.47C81.48.39,79.45,0,77.27,0,73.62,0,70.07,1.04,66.64,2.05c-2.85.84-5.55,1.63-7.74,1.63s-4.89-.79-7.74-1.63C47.73,1.04,44.18,0,40.54,0c-2.18,0-4.21.39-6.03,1.16-5.62,2.38-8.37,7.74-10.79,12.47-1.28,2.5-2.49,4.86-3.86,6.22-1.37,1.37-3.73,2.58-6.22,3.86-4.73,2.43-10.1,5.18-12.47,10.79-2.36,5.59-.63,11.47.89,16.66.84,2.85,1.63,5.55,1.63,7.74s-.79,4.89-1.63,7.74c-1.53,5.19-3.26,11.07-.89,16.66,2.38,5.62,7.74,8.37,12.47,10.79,2.5,1.28,4.86,2.49,6.22,3.86,1.37,1.37,2.58,3.73,3.86,6.22,2.43,4.73,5.18,10.1,10.79,12.47,1.82.77,3.85,1.16,6.03,1.16,3.65,0,7.2-1.04,10.63-2.05,2.85-.84,5.55-1.63,7.74-1.63s4.89.79,7.74,1.63c3.43,1.01,6.98,2.05,10.63,2.05,2.21,0,4.18-.38,6.03-1.16,5.62-2.38,8.37-7.74,10.79-12.47,1.28-2.5,2.49-4.86,3.86-6.22,1.37-1.37,3.73-2.58,6.22-3.86,4.73-2.43,10.1-5.18,12.47-10.79,2.36-5.59.63-11.47-.89-16.66-.84-2.85-1.63-5.55-1.63-7.74Z"/>
+      <path class="cls-1" d="M77.27,4c1.54,0,3.04.24,4.47.84,7.02,2.97,8.74,13.21,13.38,17.84,4.63,4.63,14.87,6.36,17.84,13.38,2.97,7.02-2.84,15.76-2.84,22.84s5.81,15.82,2.84,22.84c-2.97,7.02-13.21,8.74-17.84,13.38-4.63,4.63-6.36,14.87-13.38,17.84-1.43.6-2.93.84-4.47.84-6.04,0-12.73-3.69-18.37-3.69s-12.33,3.69-18.36,3.69c-1.54,0-3.04-.24-4.47-.84-7.02-2.97-8.74-13.21-13.38-17.84-4.63-4.63-14.87-6.36-17.84-13.38-2.97-7.02,2.84-15.76,2.84-22.84s-5.81-15.82-2.84-22.84c2.97-7.02,13.21-8.74,17.84-13.38,4.63-4.63,6.36-14.87,13.38-17.84,1.43-.6,2.93-.84,4.47-.84,6.04,0,12.73,3.69,18.36,3.69s12.33-3.69,18.37-3.69M77.27,0C73.62,0,70.07,1.04,66.64,2.05c-2.85.84-5.55,1.63-7.74,1.63s-4.89-.79-7.74-1.63C47.73,1.04,44.18,0,40.54,0c-2.18,0-4.21.39-6.03,1.16-5.62,2.38-8.37,7.74-10.79,12.47-1.28,2.5-2.49,4.86-3.86,6.22-1.37,1.37-3.73,2.58-6.22,3.86-4.73,2.43-10.1,5.18-12.47,10.79-2.36,5.59-.63,11.47.89,16.66.84,2.85,1.63,5.55,1.63,7.74s-.79,4.89-1.63,7.74c-1.53,5.19-3.26,11.07-.89,16.66,2.38,5.62,7.74,8.37,12.47,10.79,2.5,1.28,4.86,2.49,6.22,3.86,1.37,1.37,2.58,3.73,3.86,6.22,2.43,4.73,5.18,10.1,10.79,12.47,1.82.77,3.85,1.16,6.03,1.16,3.65,0,7.2-1.04,10.63-2.05,2.85-.84,5.55-1.63,7.74-1.63s4.89.79,7.74,1.63c3.43,1.01,6.98,2.05,10.63,2.05,2.21,0,4.18-.38,6.03-1.16,5.62-2.38,8.37-7.74,10.79-12.47,1.28-2.5,2.49-4.86,3.86-6.22,1.37-1.37,3.73-2.58,6.22-3.86,4.73-2.43,10.1-5.18,12.47-10.79,2.36-5.59.63-11.47-.89-16.66-.84-2.85-1.63-5.55-1.63-7.74s.79-4.89,1.63-7.74c1.53-5.19,3.26-11.07-.89-16.66-2.38-5.62-7.74-8.37-12.47-10.79-2.5-1.28-4.86-2.49-6.22-3.86-1.37-1.37-2.58-3.73-3.86-6.22-2.43-4.73-5.18-10.1-10.79-12.47C81.48.39,79.45,0,77.27,0h0Z"/>
+    </g>
+  </g>
+</svg>`;
+
+      wrapper.innerHTML = svg;
+      // use fixed positioning with viewport coordinates
+      wrapper.style.left = x + 'px';
+      wrapper.style.top = y + 'px';
+      // track cumulative rotation (persistent across clicks)
+      if(!window._clickRotation) window._clickRotation = 0;
+      window._clickRotation -= 5; // rotate 45° counterclockwise per click
+      wrapper.style.setProperty('--rotation', window._clickRotation + 'deg');
+      document.body.appendChild(wrapper);
+      wrapper.addEventListener('animationend', ()=>{ wrapper.remove(); });
+      // safety remove in case animationend doesn't fire
+      setTimeout(()=>{ if(wrapper && wrapper.parentNode) wrapper.remove(); }, 1200);
+    }catch(e){/* ignore */}
+  }
+
+  function emitBurst(x, y, container){
+    try{
+      const root = getComputedStyle(document.documentElement);
+      const count = parseInt(root.getPropertyValue('--click-burst-count')) || 12;
+      const sizeMin = parseFloat(root.getPropertyValue('--click-burst-size-min')) || 4;
+      const sizeMax = parseFloat(root.getPropertyValue('--click-burst-size-max')) || 10;
+      const rMin = parseFloat(root.getPropertyValue('--click-burst-radius-min')) || 24;
+      const rMax = parseFloat(root.getPropertyValue('--click-burst-radius-max')) || 96;
+      const dur = root.getPropertyValue('--click-burst-duration') || '520ms';
+
+      for(let i=0;i<count;i++){
+        const p = document.createElement('div');
+        p.className = 'click-burst-particle';
+        const size = Math.round(sizeMin + Math.random() * (sizeMax - sizeMin));
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        // center the particle by offsetting left/top by half size
+        const leftPx = x - (size/2);
+        const topPx = y - (size/2);
+        p.style.left = leftPx + 'px';
+        p.style.top = topPx + 'px';
+
+        // random direction and distance
+        const angle = Math.random() * Math.PI * 2;
+        const dist = rMin + Math.random() * (rMax - rMin);
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+        p.style.setProperty('--tx', dx + 'px');
+        p.style.setProperty('--ty', dy + 'px');
+        p.style.animation = `burst-fly ${dur} cubic-bezier(.2,.8,.2,1) forwards`;
+
+        document.body.appendChild(p);
+        p.addEventListener('animationend', ()=>{ p.remove(); });
+        setTimeout(()=>{ if(p && p.parentNode) p.remove(); }, 1200);
+      }
+    }catch(e){/* ignore */}
+  }
+
+  // Listen for pointerdown events, ignore if interacting with controls
+  window.addEventListener('pointerdown', (ev)=>{
+    try{
+      const t = ev.target;
+      if(isInteractive(t)) return;
+      // prefer placing pulses inside the header container to keep them visually coherent
+      const container = document.querySelector('.header-svg-container') || document.body;
+      emitPulse(ev.clientX, ev.clientY, container);
+      // spawn a short burst of small particles atop the pulse
+      emitBurst(ev.clientX, ev.clientY, container);
+    }catch(e){/* ignore */}
+  }, {passive:true});
 })();
 </script>
 
