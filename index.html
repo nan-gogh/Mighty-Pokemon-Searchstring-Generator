@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Mächtiger Suchstring</title>
+<title>Mächtiger Suchstring Generator</title>
   <link rel="icon" href="./mighty_mark_go.svg" type="image/svg+xml" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
@@ -111,19 +111,39 @@ header{
   max-width:min(980px, 95vw);
 }
 
-header img{
+.header-svg-container{
+  position: relative;
   width: var(--header-control-effective);
   height: auto;
   flex: 0 0 auto;
   max-width: 92vw;
+}
+
+.header-mark, .header-energy{
+  width: 100%;
+  height: auto;
   object-fit: contain;
   border-radius:0;
-  /* pulsating lime glow on SVG paths */
   filter: drop-shadow(0 0 20px var(--color-lime-bright));
   transform-origin: center;
   will-change: transform, filter;
-  /* gentle vertical oscillation + existing glow animation */
   animation: img-bob 4s ease-in-out infinite, img-glow 3s ease-in-out infinite;
+}
+
+.header-mark{
+  position: relative;
+  z-index: 2;
+  --bob-offset: -48px;
+  --svg-scale: 0.8;
+}
+
+.header-energy{
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  animation-delay: -0.8s, -0.5s;
+  --bob-offset: 48px;
 }
 
 .header-actions{
@@ -444,8 +464,8 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 }
 
 @keyframes img-bob{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-6px)}
+  0%,100%{transform:translateY(calc(var(--bob-offset,0px) + 0px)) scale(var(--svg-scale,1))}
+  50%{transform:translateY(calc(var(--bob-offset,0px) - 6px)) scale(var(--svg-scale,1))}
 }
 
 /* Particles: small glowing blobs that slowly float upward */
@@ -483,7 +503,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  header img, h1, .card{ animation: none !important; }
+  .header-mark, .header-energy, h1, .card{ animation: none !important; }
 }
 
 .header-actions, .card {
@@ -507,7 +527,10 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   <div class="particles" aria-hidden="true"></div>
 
 <header>
-  <img src="./mighty_mark_go.svg" alt="Pokémark" />
+  <div class="header-svg-container">
+    <img src="./mighty_crown_go.svg" alt="Pokémark" class="header-mark" />
+    <img src="./mighty_energy_go.svg" alt="" class="header-energy" aria-hidden="true" />
+  </div>
   <h1>MÄCHTIGE POKÉMON</h1>
   <div class="header-actions">
     <div class="card">
