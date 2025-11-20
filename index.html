@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Mächtiger Suchstring</title>
   <link rel="icon" href="./mighty_mark_go.svg" type="image/svg+xml" />
-  <link rel="shortcut icon" href="./mighty_mark_go.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --color-bg-dark-teal: #12251d;
@@ -19,6 +20,24 @@
   --radius: 999px;
   --transition-smooth: 520ms cubic-bezier(.2,0,.2,1);
   --transition-fast: 120ms ease;
+  --font-display: 'Orbitron', Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-mono: 'Space Grotesk', ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+  /* repeated glow colors */
+  --glow-subtle: rgba(213,255,154,0.12);
+  --glow-mid: rgba(97,196,151,0.06);
+  --glow-strong: rgba(213,255,154,0.8);
+  --glow-strong-teal: rgba(97,196,151,0.8);
+  --lime-95: rgba(213,255,154,0.95);
+  --lime-55: rgba(213,255,154,0.55);
+  /* additional lime variants used in animations */
+  --lime-06: rgba(213,255,154,0.06);
+  --lime-08: rgba(213,255,154,0.08);
+  --lime-10: rgba(213,255,154,0.10);
+  --lime-14: rgba(213,255,154,0.14);
+  --lime-16: rgba(213,255,154,0.16);
+  --lime-40: rgba(213,255,154,0.40);
+  --lime-60: rgba(213,255,154,0.60);
+  --lime-100: rgba(213,255,154,1);
 }
 
 html{box-sizing:border-box}
@@ -131,7 +150,9 @@ header img{
 h1{
   margin: clamp(8px, 2vw, 12px) auto 0 auto;
   /* scale the heading with the header control token so it visually spans the image width */
-  font-size: clamp(12px, calc(var(--header-control-effective) * 0.09), 40px);
+  font-family: var(--font-display);
+  /* Slightly reduced scale to accommodate Orbitron's wider glyphs without wrapping */
+  font-size: clamp(12px, calc(var(--header-control-effective) * 0.07), 40px);
   font-weight:600;
   text-align:center;
   /* allow wrapping on narrow screens so text remains centered */
@@ -147,6 +168,8 @@ h1{
   /* slightly increased line-height and bottom padding to avoid clipping descenders */
   line-height:1.15;
   padding-bottom: clamp(4px, 1vw, 6px);
+  /* Compact the heading slightly so the new display font doesn't force an extra line-break */
+  letter-spacing: 0.1em;
   /* lime outline + pulsating glow */
   /* primary outline for WebKit browsers (reduced thickness) */
   -webkit-text-stroke: 0.25px var(--color-lime-bright);
@@ -157,7 +180,7 @@ h1{
 
 header h1:first-of-type{
   /* slightly smaller primary header scale to avoid oversized headings */
-  font-size: clamp(16px, calc(var(--header-control-effective) * 0.105), 48px);
+  font-size: clamp(16px, calc(var(--header-control-effective) * 0.07), 48px);
   /* add extra breathing room under the primary header */
   margin-bottom: clamp(12px, 3vw, 20px);
 }
@@ -193,15 +216,13 @@ header h2{
 
 .card{
   background:var(--color-lime-bright);
-  /*border-radius:clamp(20px, 4vw, 25px);*/
-  padding:clamp(25px, 4vw, 35px) clamp(12px, 3vw, 18px) clamp(25px, 3vw, 18px) clamp(12px, 3vw, 18px);
-  margin-bottom:clamp(10px, 2.5vw, 16px);
+    padding:clamp(25px, 4vw, 35px) clamp(12px, 3vw, 18px) clamp(25px, 3vw, 18px) clamp(12px, 3vw, 18px);
+    margin-bottom:clamp(10px, 2.5vw, 16px);
   /* remove negative overlap so the card sits below the header */
   margin-top: 20px;
   border:none;
   position:relative;
   z-index:1;
-  width: 100%;
   width: var(--header-control-effective);
   max-width: 100%;
   margin-left: auto;
@@ -212,8 +233,13 @@ header h2{
   transform: translateY(0);
   transition: max-height var(--transition-smooth), opacity 420ms ease, transform 420ms ease, padding 420ms ease, margin 420ms ease;
   will-change: transform;
+  display:flex;
+  flex-direction:column;
+  justify-content:center; /* center textarea vertically between the anchored buttons */
+  align-items:stretch;
+  gap: clamp(10px, 2vw, 14px);
   /* steady glow to match header/controls (no pulsation) */
-  box-shadow: 0 26px 72px rgba(97,196,151,2.08), 0 0 40px rgba(213,255,154,2.18);
+  box-shadow: 0 0 72px var(--glow-strong-teal), 0 0 40px var(--glow-strong);
 }
 
 textarea{
@@ -221,13 +247,15 @@ textarea{
   min-height:clamp(140px, 30vw, 220px);
   max-height:clamp(50vh, 70vh, 80vh);
   /* symmetric vertical / horizontal padding to avoid visual horizontal shift on narrow screens */
-  padding: 0px;
-  margin-top: clamp(12px, 3vw, 20px);
+  padding: 0;
+  margin-top: 10px;
   margin-left: clamp(2px, 0vw, 5px);
-  border:none;
-  background:var(--color-lime-bright);
-  color:var(--color-teal-primary);
-  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    border:none;
+    background:var(--color-lime-bright);
+    color:var(--color-teal-primary);
+    /* Prefer Space Grotesk (variable) for textarea content; fallback stack kept in --font-mono */
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   font-size:clamp(11px, 2vw, 13px);
   resize:none;
   white-space:pre-wrap;
@@ -237,7 +265,6 @@ textarea{
   /* hide visible scrollbars but keep scrolling functional */
   -ms-overflow-style: none; /* IE/Edge */
   scrollbar-width: none; /* Firefox */
-  scrollbar-color: transparent transparent;
 }
 
 textarea:focus{
@@ -245,30 +272,8 @@ textarea:focus{
   box-shadow:none;
 }
 
-/* hide webkit scrollbars */
-textarea::-webkit-scrollbar{
-  width: 0px;
-  height: 0px;
-  background: transparent;
-}
-
-textarea::-webkit-scrollbar-track{
-  background: transparent;
-}
-
-textarea::-webkit-scrollbar-thumb{
-  background: transparent;
-  border: none;
-  opacity: 0;
-}
-
-.card:hover textarea::-webkit-scrollbar-thumb,textarea:focus::-webkit-scrollbar-thumb{
-  opacity:1;
-  background: var(--color-teal-primary);
-}
-.card:hover textarea{
-  scrollbar-color: var(--color-teal-primary) transparent;
-}
+/* hide webkit scrollbar */
+textarea::-webkit-scrollbar{ width:0; height:0; }
 
 .btn{
   background: var(--color-teal-primary);
@@ -281,13 +286,26 @@ textarea::-webkit-scrollbar-thumb{
   cursor:pointer;
   transition:transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
   box-shadow:none;
+}
+
+/* Shared display/align properties for anchored buttons to avoid duplication */
+.btn, .btn-clipboard, #mode-info-btn{
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: var(--radius);
+  box-sizing: border-box;
+  transform-origin: center;
   will-change: transform;
-  transform-origin:center;
+  /* anchor transform used by shared keyframes; default is no translate */
+  --anchor: translateY(0);
+  transform: var(--anchor);
 }
 
 .btn:hover{
-  transform:scale(1.02);
-  box-shadow:0 10px 28px rgba(0,0,0,0.30);
+  transform: var(--anchor) scale(1.02);
+  box-shadow: 0 10px 28px var(--glow-subtle), 0 0 20px var(--glow-mid);
 }
 
 .btn:focus{
@@ -304,8 +322,6 @@ textarea::-webkit-scrollbar-thumb{
 /* provide a brief click/press animation so share/info buttons respond visually */
 .btn:active{
   animation: btn-press 220ms ease-out;
-  transform-origin: center;
-  will-change: transform;
 }
 
 /* Info button positioned inside .card so its center aligns with the card's bottom edge */
@@ -313,7 +329,9 @@ textarea::-webkit-scrollbar-thumb{
   position: absolute;
   left: 0;
   top: 100%;
-  transform: translateY(-50%);
+  /* anchor the info button at the card bottom */
+  --anchor: translateY(-50%);
+  transform: var(--anchor);
   z-index: 30;
   width: 100%;
   max-width: 100%;
@@ -324,7 +342,13 @@ textarea::-webkit-scrollbar-thumb{
   align-items: center;
   text-align: center;
   white-space: normal;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 18px var(--glow-subtle), 0 0 10px var(--glow-mid);
+
+  /* Use display font variable for Info / Back labels so they visually match the clipboard button */
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(0.78rem, 2.4vw, 0.98rem);
+  letter-spacing: 0.06em;
 }
 
 .btn[disabled],.btn:disabled,button[disabled],button:disabled{
@@ -334,7 +358,7 @@ textarea::-webkit-scrollbar-thumb{
 }
 
 .btn.success{
-  background:#2b8a3e;
+  background:var(--color-teal-primary);
   color:white;
   border:none;
   transform-origin:center;
@@ -342,7 +366,7 @@ textarea::-webkit-scrollbar-thumb{
 }
 
 .btn.error{
-  background:#8a2b2b;
+  background:var(--color-charcoal-dark);
   color:white;
   border-color:rgba(255,255,255,0.06);
 }
@@ -352,8 +376,11 @@ textarea::-webkit-scrollbar-thumb{
   background: var(--color-teal-primary);
   color: var(--color-lime-bright);
   padding:clamp(12px, 3vw, 16px) clamp(20px, 4vw, 28px);
+  font-family: var(--font-display);
   font-weight: 600;
-  font-size:clamp(0.95rem, 7.5vw, 1.48rem);
+  /* slightly reduced responsive scale + tighter tracking to fit Orbitron without wrapping */
+  font-size:clamp(0.6rem, 2.5vw, 0.7rem);
+  letter-spacing: 0.1em;
   cursor: pointer;
   /* sizing matches `.header-actions .btn` so it adapts the same on narrow screens */
   width: var(--header-control-effective);
@@ -369,72 +396,90 @@ textarea::-webkit-scrollbar-thumb{
   position: absolute;
   left: 0;
   top: 0;
-  transform: translateY(-50%);
+  /* anchor the clipboard button at the card top */
+  --anchor: translateY(-50%);
+  transform: var(--anchor);
   z-index: 40;
 }
 
 .btn-clipboard.success{
-  background: rgb(213, 255, 154);
+  background: var(--color-lime-bright);
   color: var(--color-teal-primary);
   width: var(--header-control-effective);
   max-width: 100%;
   border:none;
-  /* use anchored animation so translateY(-50%) is preserved during the pulse */
-  animation: anchored-btn-pulse 400ms ease-out 1, btn-glow 400ms ease-out 1;
+  /* use shared pulse animation which respects the --anchor variable */
+  animation: btn-pulse 1000ms ease-out 1, btn-glow 1000ms ease-out 1;
 }
 
 .btn-clipboard:hover{
-  box-shadow: 0 18px 50px rgba(213,255,154,0.16), 0 6px 18px rgba(213,255,154,0.08);
-  transform: scale(1.02);
+  box-shadow: 0 18px 50px var(--lime-16), 0 6px 18px var(--lime-08);
+  transform: var(--anchor) scale(1.02);
 }
 
 @keyframes btn-pulse{
-  0%{transform:scale(1);box-shadow:0 6px 18px rgba(213, 255, 154,0.06)}
-  50%{transform:scale(1.06);box-shadow:0 12px 30px rgba(213, 255, 154,0.14)}
-  100%{transform:scale(1);box-shadow:0 6px 18px rgba(213, 255, 154,0.06)}
-}
-
-@keyframes anchored-btn-pulse{
-  0%{transform:translateY(-50%) scale(1);box-shadow:0 6px 18px rgba(213, 255, 154,0.06)}
-  50%{transform:translateY(-50%) scale(1.06);box-shadow:0 12px 30px rgba(213, 255, 154,0.14)}
-  100%{transform:translateY(-50%) scale(1);box-shadow:0 6px 18px rgba(213, 255, 154,0.06)}
+  0%,100%{transform:var(--anchor) scale(1);box-shadow:0 6px 18px var(--lime-06)}
+  50%{transform:var(--anchor) scale(1.06);box-shadow:0 12px 30px var(--lime-14)}
 }
 
 @keyframes btn-glow{
-  0%{ box-shadow: 0 8px 22px rgba(213, 255, 154,0.10), 0 0 0 rgba(213, 255, 154,0); }
-  30%{ box-shadow: 0 26px 72px rgba(213, 255, 154,1.30), 0 0 60px rgba(213, 255, 154,1.24); }
-  60%{ box-shadow: 0 36px 110px rgba(213, 255, 154,5.40), 0 0 90px rgba(213, 255, 154,5.32); }
-  100%{ box-shadow: 0 8px 22px rgba(213, 255, 154,0.10), 0 0 0 rgba(213, 255, 154,0); }
+  0%,100%{box-shadow:0 8px 22px var(--lime-10),0 0 0 var(--lime-100)}
+  30%{box-shadow:0 26px 72px var(--lime-100),0 0 60px var(--lime-100)}
+  60%{box-shadow:0 36px 110px var(--lime-100),0 0 90px var(--lime-100)}
 }
  
 @keyframes btn-press{
-  0%{ transform: scale(1); }
-  50%{ transform: scale(1.02); }
- 100%{ transform: scale(1); }
-}
-
-@keyframes anchored-btn-press{
-  0%{ transform: translateY(-50%) scale(1); }
-  50%{ transform: translateY(-50%) scale(1.02); }
- 100%{ transform: translateY(-50%) scale(1); }
+  0%,100%{transform:var(--anchor) scale(1)}
+  50%{transform:var(--anchor) scale(1.02)}
 }
 
 @keyframes h1-glow{
-  0%{ text-shadow: -0.6px -0.6px 0 var(--color-lime-bright), 0.6px -0.6px 0 var(--color-lime-bright), -0.6px 0.6px 0 var(--color-lime-bright), 0.6px 0.6px 0 var(--color-lime-bright), 0 0 20px var(--color-lime-bright), 0 0 30px rgba(213, 255, 154, 0.4); }
-  50%{ text-shadow: -0.6px -0.6px 0 var(--color-lime-bright), 0.6px -0.6px 0 var(--color-lime-bright), -0.6px 0.6px 0 var(--color-lime-bright), 0.6px 0.6px 0 var(--color-lime-bright), 0 0 30px var(--color-lime-bright), 0 0 50px rgba(213, 255, 154, 0.8), 0 0 70px rgba(213, 255, 154, 0.6); }
-  100%{ text-shadow: -0.6px -0.6px 0 var(--color-lime-bright), 0.6px -0.6px 0 var(--color-lime-bright), -0.6px 0.6px 0 var(--color-lime-bright), 0.6px 0.6px 0 var(--color-lime-bright), 0 0 20px var(--color-lime-bright), 0 0 30px rgba(213, 255, 154, 0.4); }
+  0%,100%{text-shadow:-0.6px -0.6px 0 var(--color-lime-bright),0.6px -0.6px 0 var(--color-lime-bright),-0.6px 0.6px 0 var(--color-lime-bright),0.6px 0.6px 0 var(--color-lime-bright),0 0 20px var(--color-lime-bright),0 0 30px var(--lime-40)}
+  50%{text-shadow:-0.6px -0.6px 0 var(--color-lime-bright),0.6px -0.6px 0 var(--color-lime-bright),-0.6px 0.6px 0 var(--color-lime-bright),0.6px 0.6px 0 var(--color-lime-bright),0 0 30px var(--color-lime-bright),0 0 50px var(--glow-strong),0 0 70px var(--lime-60)}
 }
 
 @keyframes img-glow{
-  0%{ filter: drop-shadow(0 0 10px var(--color-lime-bright)) drop-shadow(0 0 30px rgba(213, 255, 154, 0.4)); }
-  50%{ filter: drop-shadow(0 0 15px var(--color-lime-bright)) drop-shadow(0 0 50px rgba(213, 255, 154, 0.6)); }
-  100%{ filter: drop-shadow(0 0 10px var(--color-lime-bright)) drop-shadow(0 0 30px rgba(213, 255, 154, 0.4)); }
+  0%,100%{filter:drop-shadow(0 0 10px var(--color-lime-bright)) drop-shadow(0 0 30px var(--lime-40))}
+  50%{filter:drop-shadow(0 0 15px var(--color-lime-bright)) drop-shadow(0 0 50px var(--lime-60))}
 }
 
 @keyframes img-bob{
-  0%{ transform: translateY(0); }
-  50%{ transform: translateY(-6px); }
-  100%{ transform: translateY(0); }
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+/* Particles: small glowing blobs that slowly float upward */
+.particles{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:2;
+  overflow:visible;
+}
+.particles .particle{
+  position:absolute;
+  bottom:0;
+  background: radial-gradient(circle at 40% 30%, var(--lime-95) 0%, var(--lime-55) 30%, var(--glow-mid) 60%, rgba(97,196,151,0) 100%);
+  border-radius:50%;
+  filter: blur(6px);
+  opacity:0;
+  transform: translateY(0) translateX(0) scale(1);
+  will-change: transform, opacity, filter;
+  mix-blend-mode: screen;
+  transition: opacity 160ms linear;
+  animation: particle-up var(--dur, 6s) linear infinite;
+}
+
+@keyframes particle-up{
+  0%{ opacity: 0; transform: translateY(0) translateX(0) scale(1); }
+  8%{ opacity: 1; }
+  100%{ opacity: 0; transform: translateY(-120vh) translateX(var(--drift, 0px)) scale(0.6); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .particles .particle{ animation: none !important; opacity: 0 !important; }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -448,34 +493,42 @@ textarea::-webkit-scrollbar-thumb{
 /* small-screen media queries removed — layout relies on clamp() and tokens */
 /* Ensure anchored buttons keep their centering translate while hovered/active */
 #mode-info-btn:hover, .btn-clipboard:hover{
-  transform: translateY(-50%) scale(1.02);
-  box-shadow:0 10px 28px rgba(0,0,0,0.30);
+  transform: var(--anchor) scale(1.02);
+  box-shadow: 0 10px 28px var(--glow-subtle), 0 0 20px var(--glow-mid);
 }
 
-/* Use anchored press animation for anchored buttons so translate is preserved */
+/* Use shared press animation which respects the --anchor variable */
 #mode-info-btn:active, .btn-clipboard:active{
-  animation: anchored-btn-press 220ms ease-out;
+  animation: btn-press 220ms ease-out;
 }
 </style>
 </head>
 <body>
+  <div class="particles" aria-hidden="true"></div>
 
 <header>
   <img src="./mighty_mark_go.svg" alt="Pokémark" />
-  <h1>Mächtige Pokémon</h1>
-  <!--<h2>Mächtiger Suchstring</h2>-->
-  <!--<p class="p-muted small">Mächtige Pokemon brauchen einen mächtigen Suchstring!</p>-->
+  <h1>MÄCHTIGE POKÉMON</h1>
   <div class="header-actions">
     <div class="card">
-      <button class="btn-clipboard">Mächtiger Suchstring</button>
+      <button class="btn-clipboard">MÄCHTIGER SUCHSTRING</button>
       <textarea id="output" readonly></textarea>
-      <button id="mode-info-btn" class="btn">Info</button>
+      <button id="mode-info-btn" class="btn">INFO</button>
     </div>
   </div>
 </header>
 
 <script>
-const TEMPLATE = `018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola&018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691,{{A25}}& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78& {{A24}},40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola& {{A24}},{{A25}}`;
+// Pokemon groups
+const G1='018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691';
+const G2='40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482';
+const FORMS=['110,38,78','110,38,galar','110,alola,78','110,alola,galar','galar,38,78','galar,38','galar,alola,78','galar,alola'];
+
+function generateTemplate(r24,r25){
+  const base=FORMS.map(f=>`${G1},${G2},${f}`).join('&');
+  const with24=FORMS.map(f=>`${r24},${G2},${f}`).join('&');
+  return `${base}&${G1},${r25}&${with24}&${r24},${r25}`;
+}
 
 const EVENT24_START = new Date(Date.UTC(2024, 10, 23, 0, 0, 0));
 const EVENT24_END   = new Date(Date.UTC(2024, 10, 24, 23, 59, 59));
@@ -486,6 +539,55 @@ const EVENT25_END   = new Date(Date.UTC(2025, 10, 16, 23, 59, 59));
 const output = document.getElementById('output');
 const infoBtn = document.getElementById('mode-info-btn');
 
+// Small audio factory to preload and play short nav sounds (restartable)
+function createAudio(src, vol = 0.2){
+  const a = new Audio(src);
+  a.preload = 'auto';
+  a.volume = vol;
+  return {
+    play(){
+      try{ a.pause(); a.currentTime = 0; a.play().catch(()=>{}); }catch(e){}
+    }
+  };
+}
+
+const _copyNav = createAudio('./copy_nav.opus', 0.2);
+const _infoNav = createAudio('./info_nav.opus', 0.2);
+const _backNav = createAudio('./back_nav.opus', 0.2);
+
+function playCopyNavSound(){ _copyNav.play(); }
+function playInfoNavSound(){ _infoNav.play(); }
+function playBackNavSound(){ _backNav.play(); }
+
+// Create a few gentle glowing particles that float upwards in the header
+function initParticles(count = 12){
+  try{
+    const container = document.querySelector('.particles');
+    if(!container) return;
+    container.innerHTML = '';
+    for(let i=0;i<count;i++){
+      const p = document.createElement('div');
+      p.className = 'particle';
+      // Randomize horizontal position across the page width
+      const left = Math.round(Math.random()*100);
+      // start near the bottom area (0% - 10%) so particles originate from the bottom
+      const bottom = Math.random()*10; 
+      const size = (Math.random()*22)+8; // 8px - 30px
+      const dur = (Math.random()*8)+6; // 6s - 14s
+      const delay = Math.random()*-10; // negative so some start midway
+      const drift = (Math.random()*240 - 120) + 'px';
+      p.style.left = left + '%';
+      p.style.bottom = bottom + '%';
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.setProperty('--dur', dur + 's');
+      p.style.setProperty('--drift', drift);
+      p.style.setProperty('animation-delay', delay + 's');
+      container.appendChild(p);
+    }
+  }catch(e){/* ignore */}
+}
+
 // NOTE: no global busy flag — button animations are reset on each click so
 // rapid clicks are allowed while the visual success state is kept until
 // the last timeout completes.
@@ -495,7 +597,7 @@ function getInfoText(){
   const { range24, range25 } = buildRanges();
   return `VERWENDUNG
 
-Füge den String in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deinem Besitz zu finden.
+Kopiere den Suchstring aus dem Textfeld oder drücke den großen Knop darüber, um ihn in deine Zwischenablage zu speichern. Füge den Suchstring dann in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deinem Besitz zu finden.
 
 
 EINSCHRÄNKUNGEN
@@ -505,19 +607,58 @@ Die Suchleiste von Pokémon GO erlaubt nur einfache AND‑Verknüpfungen (&) und
 
 DETAILS
 
-- Disjunktive Normalform (DNF): Jede gültige Kombination wird einzeln gelistet.
-- Automatischer Altersfilter: Die Zeiträume werden dynamisch berechnet.
+Disjunktive Normalform
+Jede gültige Kombination wird einzeln gelistet.
+
+Automatischer Altersfilter
+Die Zeiträume werden dynamisch berechnet.
 
 
-ZEITRÄUME
+EVENT INTEL
 
-Naturzone 2024
-(23.–24.11.2024)
+Naturzone 23.–24.11.2024
 ` + range24 + `
 
-Naturzone 2025
-(15.–16.11.2025)
+#003 Bisaflor
+#018 Tauboss
+#062 Quappo
+#076 Geowaz
+#130 Garados
+#149 Dragoran
+#160 Impergator
+#405 Luxtra
+#466 Elevoltek
+#473 Mamutel
+#545 Cerapendra
+#596 Voltula
+#604 Zapplarang
+#697 Monargoras
+#748 Aggrostella
+
+Naturzone 15.–16.11.2025
 ` + range25 + `
+
+#040 Knuddeluff
+#078 Galar-Galoppa
+#110 Galar-Smogmog
+#038 Alola-Vulnona
+#248 Despotar
+#303 Flunkifer
+#359 Absol
+#623 Golurk
+#858 Silembrim
+#862 Barrikadax
+#908 Maskagato
+#210 Granbull
+#229 Hundemon
+#282 Guardevoir
+#430 Kramshef
+#445 Knakrack
+#452 Toxiquak
+#461 Snibunna
+#480 Selfe
+#481 Vesprit
+#482 Tobutz
 `;
 }
 
@@ -538,13 +679,13 @@ function buildRanges(){
 
 function generateFinalString(){
   const { range24, range25 } = buildRanges();
-  return TEMPLATE.replaceAll("{{A24}}", range24).replaceAll("{{A25}}", range25)
+  return generateTemplate(range24,range25)
     .split('&').map(g => g.trim().replace(/,+/g, ',').replace(/^,|,$/g, ''))
     .filter(g => g.length > 0).join('&').replace(/\s+/g, ' ');
 }
 
 let cachedString = '';
-let _prevCachedString = null;
+let _prevCachedString;
 
 function renderPreview(){
   if(!output) return;
@@ -562,7 +703,7 @@ function renderPreview(){
   requestAnimationFrame(updateBodyCentered);
 }
 
-let timer = null;
+let timer;
 
 function scheduleMidnightUpdate(){
   if(timer) clearTimeout(timer);
@@ -591,7 +732,7 @@ function updateBodyCentered(){
 // Update centering on resize/orientation changes and when visibility changes
 window.addEventListener('resize', updateBodyCentered);
 window.addEventListener('orientationchange', updateBodyCentered);
-document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) updateBodyCentered(); });
+document.addEventListener('visibilitychange', ()=>{ !document.hidden && updateBodyCentered(); });
 
 function toggleModeInfo(){
   if(!infoBtn || !output) return;
@@ -604,15 +745,15 @@ function toggleModeInfo(){
     output.value = info;
     requestAnimationFrame(()=>{ if(output) output.scrollTop = 0; });
     infoBtn.setAttribute('data-info-open', 'true');
-    infoBtn.innerText = 'Zurück';
+    infoBtn.innerText = 'ZURÜCK';
     // content changed to info view — recompute centering
     requestAnimationFrame(updateBodyCentered);
   } else {
     infoBtn.setAttribute('data-info-open', 'false');
-    infoBtn.innerText = 'Info';
-    if(_prevCachedString !== null){
+    infoBtn.innerText = 'INFO';
+    if(_prevCachedString){
       cachedString = _prevCachedString;
-      _prevCachedString = null;
+      _prevCachedString = undefined;
       output.value = cachedString;
       requestAnimationFrame(()=>{ if(output) output.scrollTop = 0; });
       // content restored — recompute centering
@@ -655,7 +796,7 @@ function _setButtonState(btn, text, state){
     btn.style.animation = '';
   }
   
-  const ms = btn.classList.contains('btn-clipboard') ? 300 : 360;
+  const ms = btn.classList.contains('btn-clipboard') ? 1000 : 360;
   btn._timeout = setTimeout(()=>{
     // restore original text and any preserved minHeight
     btn.innerText = btn._origText;
@@ -686,11 +827,19 @@ const _attachUIListeners = ()=>{
   const clipboardEl = document.querySelector('.btn-clipboard');
   if(clipboardEl){
     clipboardEl.addEventListener('click', (e)=>{
+      playCopyNavSound();
       copyAndNotify(clipboardEl);
     });
   }
-  if(infoBtn){
+    if(infoBtn){
     infoBtn.addEventListener('click', (e)=>{
+      // if Info view is currently open, play the back sound; otherwise play the info-open sound
+      const isOpenNow = infoBtn.getAttribute('data-info-open') === 'true';
+      if(isOpenNow){
+        playBackNavSound();
+      } else {
+        playInfoNavSound();
+      }
       toggleModeInfo();
     });
   }
@@ -701,13 +850,18 @@ _attachUIListeners();
 
 renderPreview();
 scheduleMidnightUpdate();
-
-document.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden){
-    renderPreview();
-    scheduleMidnightUpdate();
-  }
+// initialize particles after rendering so header sizes are known
+initParticles(12);
+// Recreate particles on resize (debounced) so positions remain distributed
+let _particleResizeTimer;
+window.addEventListener('resize', ()=>{
+  if(_particleResizeTimer) clearTimeout(_particleResizeTimer);
+  _particleResizeTimer = setTimeout(()=>{
+    initParticles(12);
+  }, 200);
 });
+
+document.addEventListener('visibilitychange', ()=>{ !document.hidden && (renderPreview(), scheduleMidnightUpdate()); });
 </script>
 
 </body>
