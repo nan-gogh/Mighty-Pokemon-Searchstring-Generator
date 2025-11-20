@@ -22,7 +22,6 @@
   --transition-fast: 120ms ease;
   --font-display: 'Orbitron', Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   --font-mono: 'Space Grotesk', ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-  /* Color variants (lime: 213,255,154 | teal: 97,196,151) */
   --lime: 213,255,154;
   --teal: 97,196,151;
   --lime-100: rgba(var(--lime),1);
@@ -39,34 +38,31 @@
   --glow-mid: rgba(var(--teal),.06);
   --glow-strong: rgba(var(--lime),.8);
   --glow-strong-teal: rgba(var(--teal),.8);
-  /* Mini-particle tuning (descriptive / editable) */
-  --mini-count: 10; /* default number of mini particles */
-  --mini-dur: 1s; /* particle life duration (seconds) */
-  --mini-size-min: 4px; /* minimum particle size */
-  --mini-size-max: 24px; /* maximum particle size */
-  --mini-horizontal-spread-mult: 0.5; /* fraction of container width used for spread */
-  --mini-vertical-spread-mult: 0.5; /* fraction of container height used for spread */
-  --mini-jitter-x: 30px; /* additional horizontal jitter */
-  --mini-jitter-y: 24px; /* additional vertical jitter */
-  --mini-spawn-down-ratio: 0.06; /* fraction of container height to nudge spawn down */
-  --mini-spawn-nudge-ratio: 0.06; /* extra nudge as fraction of container height */
-  --mini-blur: 3px; /* blur applied to mini particles */
-  /* Global (page) particle tuning */
-  --particles-count: 12; /* default number of global particles */
-  --particles-dur-min: 6s; /* min particle lifetime */
-  --particles-dur-max: 14s; /* max particle lifetime */
-  --particles-size-min: 8px; /* min size */
-  --particles-size-max: 30px; /* max size */
-  --particles-drift-max: 120px; /* max horizontal drift magnitude (px) */
-  --particles-delay-range: 10s; /* range for negative start delays (s) */
-  --particles-blur: 6px; /* blur for global particles */
-  --particles-opacity-peak: 1; /* peak opacity when visible */
-  --particles-travel-vh: 640vh; /* translateY travel for global particles */
-  /* Bottom pulse (pulsating linear gradient from below) */
-  --bottom-pulse-height: 50vh; /* height of the gradient band */
-  --bottom-pulse-opacity: 0.5; /* peak opacity of pulse */
-  --bottom-pulse-duration: 3800ms; /* pulse cycle duration */
-  --bottom-pulse-max: 100vh; /* maximum height (reach half the viewport) */
+  --mini-count: 10;
+  --mini-dur: 1s;
+  --mini-size-min: 4px;
+  --mini-size-max: 24px;
+  --mini-horizontal-spread-mult: 0.5;
+  --mini-vertical-spread-mult: 0.5;
+  --mini-jitter-x: 30px;
+  --mini-jitter-y: 24px;
+  --mini-spawn-down-ratio: 0.06;
+  --mini-spawn-nudge-ratio: 0.06;
+  --mini-blur: 3px;
+  --particles-count: 12;
+  --particles-dur-min: 6s;
+  --particles-dur-max: 14s;
+  --particles-size-min: 8px;
+  --particles-size-max: 30px;
+  --particles-drift-max: 120px;
+  --particles-delay-range: 10s;
+  --particles-blur: 6px;
+  --particles-opacity-peak: 1;
+  --particles-travel-vh: 640vh;
+  --bottom-pulse-height: 50vh;
+  --bottom-pulse-opacity: 0.5;
+  --bottom-pulse-duration: 3800ms;
+  --bottom-pulse-max: 100vh;
 }
 
 /* Text selection styling — match the site's lime/teal theme.
@@ -88,7 +84,7 @@ textarea::selection, input::selection, select::selection{
   bottom: 0;
   height: var(--bottom-pulse-height, 22vh);
   pointer-events: none;
-  z-index: 0; /* behind main content (body > * has z-index:1) */
+  z-index: 0;
   background: linear-gradient(to top, var(--color-lime-bright) 0%, rgba(213,255,154,0.66) 18%, rgba(213,255,154,0.18) 36%, transparent 100%);
   opacity: 0;
   will-change: height, opacity;
@@ -128,24 +124,15 @@ body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  /* Use flex-start so when the content is taller than the viewport
-     users can scroll to the very top. Previously centering prevented
-     reaching the header image's top edge at extreme zoom. */
   justify-content:flex-start;
   min-height:100vh;
-  /* preserve the original breathing room but add a larger top padding
-     so short pages still visually sit away from the viewport top */
   padding:clamp(12px, 3vw, 28px);
   padding-top: clamp(28px, 10vh, 80px);
   box-sizing:border-box;
 }
 
-/* When the page content is shorter than the viewport, apply this class
-   to vertically center the content. When content is taller, remove it so
-   users can scroll to the top freely. Toggled via JS (updateBodyCentered). */
 body.centered{
   justify-content: center;
-  /* reduce top padding when truly centered to keep the visual balance */
   padding-top: clamp(12px, 6vh, 48px);
 }
 
@@ -196,11 +183,9 @@ header{
   position: relative;
   width: var(--header-control-effective);
   height: auto;
-  /* lock an explicit aspect ratio so both SVG layers scale identically */
   aspect-ratio: 188.38 / 148.46;
   flex: 0 0 auto;
   max-width: 92vw;
-  /* small upward nudge so the header image visually sits closer to the top */
   --header-y-offset: clamp(-12px, -3.5vh, -36px);
   transform: translateY(var(--header-y-offset));
 }
@@ -216,14 +201,13 @@ header{
   transform-origin: center;
   transform-box: fill-box;
   will-change: transform, filter;
-  /* default animation applied to the mark only; energy overrides below */
 }
 
 .header-crown{
   z-index: 10001;
   --bob-offset: -6%;
   --svg-scale: 0.6;
-  animation: img-bob 4s ease-in-out infinite, unified-glow 3s ease-in-out infinite;
+  animation: img-bob 4s ease-in-out infinite;
   filter: drop-shadow(0 0 10px var(--color-lime-bright)) drop-shadow(0 0 30px var(--lime-40));
 }
 
@@ -250,10 +234,9 @@ header{
   opacity: 0;
   transform: translateY(var(--energy-offset, 20%)) scale(0);
   will-change: transform, opacity;
-  /* No filter needed - container handles glow */
   animation: energy-pop 4s ease-out infinite;
-  /* Offset spawn position down from crown center */
   top: 15%;
+  z-index: 1;
 }
 
 
@@ -280,39 +263,26 @@ header{
 
 h1{
   margin: clamp(8px, 2vw, 12px) auto 0 auto;
-  /* scale the heading with the header control token so it visually spans the image width */
   font-family: var(--font-display);
-  /* Slightly reduced scale to accommodate Orbitron's wider glyphs without wrapping */
   font-size: clamp(12px, calc(var(--header-control-effective) * 0.07), 40px);
   font-weight:600;
   text-align:center;
-  /* allow wrapping on narrow screens so text remains centered */
   white-space: normal;
-  /* allow descenders (g, y) to render without being clipped */
   overflow: visible;
-  /* match the card width exactly so h1 stays centered at all zoom levels */
   width: var(--header-control-effective);
   max-width: 100%;
   box-sizing: border-box;
-  /* no horizontal padding - let text-align:center handle centering within the fixed width */
   padding: 0;
-  /* slightly increased line-height and bottom padding to avoid clipping descenders */
   line-height:1.15;
   padding-bottom: clamp(4px, 1vw, 6px);
-  /* Compact the heading slightly so the new display font doesn't force an extra line-break */
   letter-spacing: 0.1em;
-  /* lime outline + pulsating glow */
-  /* primary outline for WebKit browsers (reduced thickness) */
   -webkit-text-stroke: 0.25px var(--color-lime-bright);
-  /* text-stroke fallback via multiple tiny shadows for other browsers (thinner) */
   text-shadow: -0.6px -0.6px 0 var(--color-lime-bright), 0.6px -0.6px 0 var(--color-lime-bright), -0.6px 0.6px 0 var(--color-lime-bright), 0.6px 0.6px 0 var(--color-lime-bright), 0 0 20px var(--color-lime-bright), 0 0 30px var(--lime-40);
   animation: unified-glow 3s ease-in-out infinite;
 }
 
 header h1:first-of-type{
-  /* slightly smaller primary header scale to avoid oversized headings */
   font-size: clamp(16px, calc(var(--header-control-effective) * 0.07), 48px);
-  /* add extra breathing room under the primary header */
   margin-bottom: clamp(6px, 2vw, 12px);
 }
 
@@ -580,15 +550,18 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   0%{
     opacity: 0.9;
     transform: translateY(var(--energy-offset,0%)) scale(0);
+    z-index: 100;
   }
   /* Hold visible for longer, use transform-only for most of animation */
   10%{
     opacity: 1;
     transform: translateY(var(--energy-offset,0%)) scale(0.3);
+    z-index: 100;
   }
   85%{
     opacity: 0.25;
     transform: translateY(var(--energy-offset,0%)) scale(1);
+    z-index: 1;
   }
   100%{
     opacity: 0;
@@ -794,7 +767,7 @@ const EVENT25_END   = new Date(Date.UTC(2025, 10, 16, 23, 59, 59));
 const output = document.getElementById('output');
 const infoBtn = document.getElementById('mode-info-btn');
 
-// Small audio factory to preload and play short nav sounds (restartable)
+// Audio factory - creates restartable audio instances for UI feedback
 function createAudio(src, vol = 0.2){
   const a = new Audio(src);
   a.preload = 'auto';
@@ -814,7 +787,7 @@ function playCopyNavSound(){ _copyNav.play(); }
 function playInfoNavSound(){ _infoNav.play(); }
 function playBackNavSound(){ _backNav.play(); }
 
-// Unified CSS variable reader utility (Phase 3 refactor)
+// CSS variable utility - read numeric/string values with fallbacks
 const CSS = {
   _root: () => getComputedStyle(document.documentElement),
   num: (name, fallback = 0) => {
@@ -824,7 +797,6 @@ const CSS = {
     return Number.isFinite(n) ? n : fallback;
   },
   str: (name, fallback = '') => CSS._root().getPropertyValue(name) || fallback,
-  // Read multiple config values with a prefix (e.g., '--particles')
   getConfig: (prefix, keys) => {
     const config = {};
     for(const key in keys) {
@@ -834,7 +806,7 @@ const CSS = {
   }
 };
 
-// Unified Particle System (Phase 1 refactor)
+// Base particle system with shared init/spawn logic
 class ParticleSystem {
   constructor(selector, configPrefix, className, defaults) {
     this.selector = selector;
@@ -995,7 +967,6 @@ class EnergyParticles {
       particle.className = 'energy-particle';
       particle.alt = '';
       particle.style.animationDelay = `-${delays[i]}ms`;
-      particle.style.zIndex = i;
       this.container.appendChild(particle);
     }
   }
