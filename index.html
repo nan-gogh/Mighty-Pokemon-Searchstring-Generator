@@ -115,36 +115,88 @@ header{
   position: relative;
   width: var(--header-control-effective);
   height: auto;
+  /* lock an explicit aspect ratio so both SVG layers scale identically */
+  aspect-ratio: 188.38 / 148.46;
   flex: 0 0 auto;
   max-width: 92vw;
+  /* small upward nudge so the header image visually sits closer to the top */
+  --header-y-offset: clamp(-12px, -3.5vh, -36px);
+  transform: translateY(var(--header-y-offset));
 }
 
-.header-mark, .header-energy{
+/* Soft radial lime glow positioned behind the SVG layers but inside the container */
+.header-svg-container::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+    background: radial-gradient(circle at 50% 70%, var(--color-teal-primary) 0%, var(--color-teal-primary) 30%, var(--lime-16) 50%, transparent 60%);
+  filter: blur(14px);
+  transform: translateZ(0) scale(1.25);
+  opacity: 0.95;
+}
+
+.header-crown, .header-energy{
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
-  border-radius:0;
+  border-radius: 0;
   filter: drop-shadow(0 0 20px var(--color-lime-bright));
   transform-origin: center;
+  transform-box: fill-box;
   will-change: transform, filter;
+  /* default animation applied to the mark only; energy overrides below */
+}
+
+.header-crown{
+  z-index: 10001;
+  /* use percentage offsets so translations scale with the SVG/container size */
+  --bob-offset: -6%;
+  --svg-scale: 0.6;
   animation: img-bob 4s ease-in-out infinite, img-glow 3s ease-in-out infinite;
 }
 
-.header-mark{
-  position: relative;
-  z-index: 2;
-  --bob-offset: -48px;
-  --svg-scale: 0.8;
+.header-energy{
+      z-index: 0;
+  opacity: 0.0;
+  /* energy layer uses pop animation (grow/fade) instead of bob */
+  /* Use explicit shorthand delays so the pop animation has a 4s period and starts immediately */
+  animation: energy-pop 4s ease-out 0s infinite, img-glow 3s ease-in-out 0s infinite;
+  /* percentage offset keeps the energy nudge proportional to container size */
+  --energy-offset: 20%;
 }
 
-.header-energy{
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  animation-delay: -0.8s, -0.5s;
-  --bob-offset: 48px;
+/* Dramatically delayed duplicate of the energy layer for staggered effect */
+.header-energy--delayed{
+      z-index: 1;
+  opacity: 0.0;
+  /* same animations but phase-shifted: energy-pop delayed by 2s (half of 4s) */
+  animation: energy-pop 4s ease-out 1s infinite, img-glow 3s ease-in-out 1s infinite;
+  --energy-offset: 20%;
+  pointer-events: none;
 }
+
+/* Third layer: shifted by two-thirds of the 4s cycle (~2.667s) */
+.header-energy--delayed2{
+      z-index: 2;
+  opacity: 0.0;
+  animation: energy-pop 4s ease-out 2s infinite, img-glow 3s ease-in-out 2s infinite;
+  --energy-offset: 20%;
+  pointer-events: none;
+}
+    /* Fourth layer: shifted by three-quarters of the 4s cycle (3s) */
+    .header-energy--delayed3{
+      z-index: 3;
+      opacity: 0.0;
+      animation: energy-pop 4s ease-out 3s infinite, img-glow 3s ease-in-out 3s infinite;
+      --energy-offset: 20%;
+      pointer-events: none;
+    }
+
 
 .header-actions{
   display:flex;
@@ -202,7 +254,7 @@ header h1:first-of-type{
   /* slightly smaller primary header scale to avoid oversized headings */
   font-size: clamp(16px, calc(var(--header-control-effective) * 0.07), 48px);
   /* add extra breathing room under the primary header */
-  margin-bottom: clamp(12px, 3vw, 20px);
+  margin-bottom: clamp(6px, 2vw, 12px);
 }
 
 header h2{
@@ -238,8 +290,8 @@ header h2{
   background:var(--color-lime-bright);
     padding:clamp(25px, 4vw, 35px) clamp(12px, 3vw, 18px) clamp(25px, 3vw, 18px) clamp(12px, 3vw, 18px);
     margin-bottom:clamp(10px, 2.5vw, 16px);
-  /* remove negative overlap so the card sits below the header */
-  margin-top: 20px;
+  /* reduce top spacing so the clipboard button sits closer to the headline */
+  margin-top: 8px;
   border:none;
   position:relative;
   z-index:1;
@@ -464,8 +516,24 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 }
 
 @keyframes img-bob{
-  0%,100%{transform:translateY(calc(var(--bob-offset,0px) + 0px)) scale(var(--svg-scale,1))}
-  50%{transform:translateY(calc(var(--bob-offset,0px) - 6px)) scale(var(--svg-scale,1))}
+  0%,100%{transform:translateY(var(--bob-offset,0%)) scale(var(--svg-scale,1))}
+  50%{transform:translateY(calc(var(--bob-offset,0%) - 6%)) scale(var(--svg-scale,1))}
+}
+
+@keyframes energy-pop{
+  0%{
+    opacity: 1;
+    transform: translateY(var(--energy-offset,0%)) scale(0);
+  }
+  /* Hold fully opaque most of the cycle so pulses remain visible longer */
+  85%{
+    opacity: 0.2;
+    transform: translateY(var(--energy-offset,0%)) scale(1);
+  }
+  100%{
+    opacity: 0;
+    transform: translateY(var(--energy-offset,0%)) scale(1);
+  }
 }
 
 /* Particles: small glowing blobs that slowly float upward */
@@ -492,10 +560,46 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   animation: particle-up var(--dur, 6s) linear infinite;
 }
 
+/* Mini particle system inside the header container (always on top) */
+.mini-particles{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:10002; /* above crown (10001) */
+  overflow:visible;
+}
+.mini-particles .particle-mini{
+  position:absolute;
+  /*bottom:8%;*/
+  /* use a solid, fully-opaque color for high visibility during testing */
+  background: var(--lime-100);
+  border-radius:50%;
+  /* reduced blur for crisper, more defined mini-particles during testing */
+  /*filter: blur(1px);*/
+  opacity:1; /* start fully opaque; keyframes will keep them visible until near the end */
+  transform: translateY(0) translateX(0) scale(1);
+  will-change: transform, opacity, filter;
+  mix-blend-mode: screen;
+  transition: opacity 120ms linear;
+  animation: mini-particle-up var(--dur, 1s) linear infinite;
+}
+
+@keyframes mini-particle-up{
+  0%{ opacity: 0; transform: translateY(0) translateX(0) scale(0); }
+  5%{ opacity: 1; transform: translateY(0) translateX(0) scale(0.5); }
+  50%{ opacity: 1; transform: translateY(-2750) translateX(0) scale(1); }
+  /* remain fully opaque for the majority of the animation for testing visibility */
+  /*95%{ opacity: 1; transform: translateY(-2500%) translateX(0px) scale(0.35); }*/
+  100%{ opacity: 0; transform: translateY(-3000%) translateX(0px) scale(0.3); }
+}
+
 @keyframes particle-up{
   0%{ opacity: 0; transform: translateY(0) translateX(0) scale(1); }
   8%{ opacity: 1; }
-  100%{ opacity: 0; transform: translateY(-120vh) translateX(var(--drift, 0px)) scale(0.6); }
+  /* extend the global particles' travel so they float further up the viewport */
+  100%{ opacity: 0; transform: translateY(-1280vh) translateX(var(--drift, 0px)) scale(0.6); }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -503,7 +607,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  .header-mark, .header-energy, h1, .card{ animation: none !important; }
+  .header-crown, .header-energy, h1, .card{ animation: none !important; }
 }
 
 .header-actions, .card {
@@ -528,8 +632,12 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 
 <header>
   <div class="header-svg-container">
-    <img src="./mighty_crown_go.svg" alt="Pokémark" class="header-mark" />
+    <img src="./mighty_crown_go.svg" alt="Pokémark" class="header-crown" />
     <img src="./mighty_energy_go.svg" alt="" class="header-energy" aria-hidden="true" />
+    <img src="./mighty_energy_go.svg" alt="" class="header-energy header-energy--delayed" aria-hidden="true" />
+    <img src="./mighty_energy_go.svg" alt="" class="header-energy header-energy--delayed2" aria-hidden="true" />
+    <img src="./mighty_energy_go.svg" alt="" class="header-energy header-energy--delayed3" aria-hidden="true" />
+    <div class="mini-particles" aria-hidden="true"></div>
   </div>
   <h1>MÄCHTIGE POKÉMON</h1>
   <div class="header-actions">
@@ -606,6 +714,95 @@ function initParticles(count = 12){
       p.style.setProperty('--dur', dur + 's');
       p.style.setProperty('--drift', drift);
       p.style.setProperty('animation-delay', delay + 's');
+      container.appendChild(p);
+    }
+  }catch(e){/* ignore */}
+}
+
+// Mini particle system inside the header container (faster, smaller, always-on-top)
+function initMiniParticles(count = 10){
+  try{
+    // Prefer the mini-particles placed inside the header SVG container so
+    // they visually originate from the crown/energy area.
+    const container = document.querySelector('.header-svg-container .mini-particles') || document.querySelector('.mini-particles');
+    if(!container) return;
+    container.innerHTML = '';
+    const rect = container.getBoundingClientRect();
+    // find an energy layer to align spawn to its visual center if present
+    const crownEl = document.querySelector('.header-svg-container .header-crown') || document.querySelector('.header-crown');
+    const energyEl = document.querySelector('.header-svg-container .header-energy') || document.querySelector('.header-energy');
+    // default spawn center in pixels (relative to container)
+    // We'll compute spawn coordinates based on the crown if present, otherwise energy, otherwise container center.
+    const spawnDownRatio = -0.25; // fraction of container height to push spawn slightly downward
+    // extra pixel nudge (fraction of container height) to push spawn a bit lower
+    const spawnNudgePx = rect.height * 0.1; // 6% of container height
+    let spawnCenterX = rect.width * 0.5;
+    let spawnCenterYfromTop = rect.height * 0.45 + rect.height * spawnDownRatio + spawnNudgePx; // px from top
+
+    if(crownEl){
+      const cRect = crownEl.getBoundingClientRect();
+      // use crown bottom center as the base spawn point
+      const crownCenterX = cRect.left + cRect.width * 0.5;
+      const crownBottomY = cRect.top + cRect.height;
+      spawnCenterX = crownCenterX - rect.left;
+      spawnCenterYfromTop = (crownBottomY - rect.top) + rect.height * (spawnDownRatio * 0.5) + spawnNudgePx;
+    } else if(energyEl){
+      const eRect = energyEl.getBoundingClientRect();
+      const energyCenterX = eRect.left + eRect.width * 0.5;
+      const energyBottomY = eRect.top + eRect.height;
+      spawnCenterX = energyCenterX - rect.left;
+      spawnCenterYfromTop = (energyBottomY - rect.top) + rect.height * (spawnDownRatio * 0.5) + spawnNudgePx;
+    }
+
+    // Wider spawn area around the selected base point (crown/energy/container)
+    const horizontalSpread = Math.max(120, rect.width * 0.6); // px
+    const verticalSpread = Math.max(40, rect.height * 0.45); // px
+    for(let i=0;i<count;i++){
+      const p = document.createElement('div');
+      p.className = 'particle-mini';
+      // pick a point in a wider box around the base point with jitter
+      const jitterX = (Math.random() * 60) - 30; // -30px .. +30px
+      const jitterY = (Math.random() * 48) - 24; // -24px .. +24px
+
+      const leftPx = spawnCenterX + (Math.random() - 0.5) * horizontalSpread + jitterX;
+      const topPx = spawnCenterYfromTop + (Math.random() - 0.5) * verticalSpread + jitterY;
+      const leftPct = rect.width > 0 ? (leftPx / rect.width) * 100 : 50;
+      const topPct = rect.height > 0 ? (topPx / rect.height) * 100 : 30;
+
+      // Uniform appearance: size and duration fixed so only spawn position varies
+      const size = 8; // uniform size in px
+      const dur = 0.28; // uniform duration in seconds
+      // randomize spawn timing: negative values start mid-animation
+      const delay = (Math.random() * 0.6) - 0.3; // -0.3s .. +0.3s
+      const drift = '0px';
+
+      p.style.left = leftPct + '%';
+      p.style.top = topPct + '%';
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.filter = 'blur(4px)';
+      p.style.setProperty('--dur', dur + 's');
+      p.style.setProperty('--drift', drift);
+      p.style.setProperty('animation-delay', delay + 's');
+
+      // On each animation iteration reposition the particle to a new random
+      // point around the same spawn center and give it a slight random delay
+      // so particles don't sync across respawns.
+      const reposition = () => {
+        try{
+          const r = container.getBoundingClientRect();
+          const xPx = spawnCenterX + (Math.random() - 0.5) * horizontalSpread + (Math.random() * 60 - 30);
+          const yPx = spawnCenterYfromTop + (Math.random() - 0.5) * verticalSpread + (Math.random() * 48 - 24) + spawnNudgePx;
+          const xPct = r.width > 0 ? (xPx / r.width) * 100 : 50;
+          const yPct = r.height > 0 ? (yPx / r.height) * 100 : 30;
+          p.style.left = Math.min(100, Math.max(0, xPct)).toFixed(4) + '%';
+          p.style.top = Math.min(100, Math.max(0, yPct)).toFixed(4) + '%';
+          // small random delay so particles respawn with slight phase differences
+          p.style.setProperty('animation-delay', ((Math.random() * 0.6) - 0.3) + 's');
+        }catch(e){/* ignore */}
+      };
+      p.addEventListener('animationiteration', reposition);
+
       container.appendChild(p);
     }
   }catch(e){/* ignore */}
@@ -875,16 +1072,61 @@ renderPreview();
 scheduleMidnightUpdate();
 // initialize particles after rendering so header sizes are known
 initParticles(12);
+// initialize mini particles (inside header) after main particles
+initMiniParticles(10);
 // Recreate particles on resize (debounced) so positions remain distributed
 let _particleResizeTimer;
 window.addEventListener('resize', ()=>{
   if(_particleResizeTimer) clearTimeout(_particleResizeTimer);
   _particleResizeTimer = setTimeout(()=>{
     initParticles(12);
+    initMiniParticles(10);
   }, 200);
 });
 
 document.addEventListener('visibilitychange', ()=>{ !document.hidden && (renderPreview(), scheduleMidnightUpdate()); });
+
+// Ensure energy layers that just started their pulse are visually on top.
+// Listen for animationstart/animationiteration for the `energy-pop` animation
+// and temporarily bump the element's inline z-index, then restore it.
+(function(){
+  function parseFirstDuration(str){
+    if(!str) return 4;
+    const first = (str.split(',')[0]||'4s').trim();
+    // allow values like "1.5s" or "200ms"
+    if(first.endsWith('ms')) return parseFloat(first) / 1000 || 4;
+    return parseFloat(first) || 4;
+  }
+
+  function makeBumper(el){
+    const cs = getComputedStyle(el);
+    const dur = parseFirstDuration(cs.animationDuration);
+    // store original z (computed) so we can restore; if 'auto' use empty string
+    const baseZ = cs.zIndex === 'auto' ? '' : cs.zIndex;
+    el.dataset._baseZ = baseZ;
+    const resetDelay = Math.max(200, dur * 1000 * 0.5);
+    const bump = ()=>{
+      if(el._zResetTimeout) clearTimeout(el._zResetTimeout);
+      el.style.zIndex = 10000;
+      el._zResetTimeout = setTimeout(()=>{
+        if(el.dataset._baseZ === '') el.style.zIndex = '';
+        else el.style.zIndex = el.dataset._baseZ;
+        delete el._zResetTimeout;
+      }, resetDelay);
+    };
+    el.addEventListener('animationstart', (ev)=>{ if(ev.animationName === 'energy-pop') bump(); });
+    el.addEventListener('animationiteration', (ev)=>{ if(ev.animationName === 'energy-pop') bump(); });
+  }
+
+  // run on DOMContentLoaded to ensure elements exist
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.querySelectorAll('.header-energy').forEach(makeBumper);
+    });
+  } else {
+    document.querySelectorAll('.header-energy').forEach(makeBumper);
+  }
+})();
 </script>
 
 </body>
