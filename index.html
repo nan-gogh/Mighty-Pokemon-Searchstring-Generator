@@ -152,6 +152,24 @@ textarea::selection, input::selection, select::selection{
   50%{ opacity: 0.6; transform: scale(1.05); }
 }
 
+/* Quick glitch effect applied when user toggles language */
+.grid-background.glitch::before,
+.grid-background.glitch::after{
+  animation: grid-pulse 8s ease-in-out infinite, bg-glitch 520ms steps(6, end) 1;
+  filter: hue-rotate(8deg) saturate(1.15);
+}
+
+@keyframes bg-glitch{
+  0% { transform: translateX(0) translateY(0) scale(1); clip-path: inset(0 0 0 0); }
+  10% { transform: translateX(-6px) translateY(-2px) scale(1.02); clip-path: inset(4% 0 0 0); }
+  20% { transform: translateX(8px) translateY(3px) scale(0.99); clip-path: inset(0 6% 0 0); }
+  30% { transform: translateX(-4px) translateY(2px) scale(1.01); clip-path: inset(0 0 6% 0); }
+  45% { transform: translateX(6px) translateY(-3px) scale(1); clip-path: inset(6% 0 0 0); }
+  60% { transform: translateX(-8px) translateY(1px) scale(1.02); clip-path: inset(0 0 0 8%); }
+  80% { transform: translateX(2px) translateY(-1px) scale(1); clip-path: inset(0 0 0 0); }
+  100% { transform: translateX(0) translateY(0) scale(1); clip-path: inset(0 0 0 0); }
+}
+
 @media (prefers-reduced-motion: reduce){
   .grid-background::before,
   .grid-background::after{
@@ -1507,8 +1525,17 @@ const _attachUIListeners = ()=>{
   const langToggle = document.getElementById('lang-toggle');
   if(langToggle){
     langToggle.addEventListener('click', ()=>{
-      // play language switch SFX, then toggle language
+      // play language switch SFX, trigger a short background glitch, then toggle language
       try{ playLangNavSound(); }catch(e){}
+      const bg = document.querySelector('.grid-background');
+      if(bg){
+        // restart class to retrigger animation
+        bg.classList.remove('glitch');
+        void bg.offsetWidth;
+        bg.classList.add('glitch');
+        // remove the class after the effect finishes
+        setTimeout(()=>{ try{ bg.classList.remove('glitch'); }catch(e){} }, 600);
+      }
       const newLang = currentLang === 'de' ? 'en' : 'de';
       setLanguage(newLang);
     });
