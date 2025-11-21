@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>Mächtiger Suchstring Generator</title>
   <link rel="icon" href="./mighty_mark_go.svg" type="image/svg+xml" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
@@ -703,8 +703,8 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 .click-star svg{ display:block; width:100%; height:100%; }
 @keyframes click-star-grow{
   0%{ opacity: 0; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(0.22); }
-  25%{ opacity: 0.75; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(0.7); }
-  50%{ opacity: 0.25; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(0.88); }
+  25%{ opacity: 0.5; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(0.4); }
+  50%{ opacity: 0.1; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(0.88); }
   100%{ opacity: 0; transform: translate(-50%, -50%) rotate(var(--rotation, 0deg)) scale(1.3); }
 }
 
@@ -1048,7 +1048,7 @@ function getInfoText(){
   const { range24, range25 } = buildRanges();
   return `VERWENDUNG
 
-Kopiere den Suchstring aus dem Textfeld oder drücke den großen Knop darüber, um ihn in deine Zwischenablage zu speichern. Füge den Suchstring dann in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deinem Besitz zu finden.
+Kopiere den Suchstring aus dem Textfeld oder drücke den großen Knopf darüber, um ihn in deine Zwischenablage zu speichern. Füge den Suchstring dann in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deinem Besitz zu finden.
 
 
 GRUNDLAGE
