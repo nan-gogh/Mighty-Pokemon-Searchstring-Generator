@@ -12,7 +12,7 @@
   --color-bg-dark-teal: #12251d;
   --color-bg-charcoal: #0f1011;
   --color-lime-bright: #d5ff9a;
-  --color-teal-primary: #61C497;
+  --color-teal-primary: rgb(97, 196, 151);
   --color-charcoal-dark: #1a1b1c;
   --color-border-subtle: rgba(255,255,255,0.03);
   --color-focus-blue: rgba(78, 144, 254, 0.12);
@@ -768,9 +768,41 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 #mode-info-btn:active, .btn-clipboard:active{
   animation: btn-press 220ms ease-out;
 }
+
+/* Language toggle button */
+#lang-toggle{
+  --anchor: translateX(-50%);
+  position: fixed;
+  top: clamp(12px, 3vw, 20px);
+  left: 50%;
+  transform: var(--anchor);
+  background: rgba(var(--teal), 1);
+  color: var(--color-lime-bright);
+  border: none;
+  border-radius: 999px;
+  padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 18px);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+#lang-toggle:hover{
+  transform: var(--anchor) scale(1.02);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2), 0 0 12px var(--glow-mid);
+}
+
+#lang-toggle:active{
+  animation: btn-press 220ms ease-out;
+}
 </style>
 </head>
 <body>
+  <button id="lang-toggle" aria-label="Switch language">DE</button>
   <div class="grid-background" aria-hidden="true"></div>
   <div class="bottom-pulse" aria-hidden="true"></div>
   <div class="particles" aria-hidden="true"></div>
@@ -792,6 +824,179 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 </header>
 
 <script>
+// ===== LANGUAGE SYSTEM =====
+const TRANSLATIONS = {
+  de: {
+    title: 'MÄCHTIGE POKÉMON',
+    infoBtn: 'INFO',
+    backBtn: 'ZURÜCK',
+    copySuccess: '✓',
+    copyError: 'Kopieren fehlgeschlagen',
+    infoText: {
+      usage: 'VERWENDUNG',
+      usageContent: 'Kopiere den Suchstring aus dem Textfeld oder drücke den großen Knopf darüber, um ihn in deine Zwischenablage zu speichern. Füge den Suchstring dann in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deinem Besitz zu finden.',
+      limitations: 'GRUNDLAGE',
+      limitationsContent: 'Die Suchleiste von Pokémon GO erlaubt nur einfache AND‑Verknüpfungen (&) und unterstützt weder Klammern noch OR‑Logik (|). Jede Kombination aus Pokémon, Form und Fangalter muss einzeln aufgeführt werden.',
+      details: 'DETAILS',
+      dnf: 'Disjunktive Normalform',
+      dnfContent: 'Jede gültige Kombination wird einzeln gelistet.',
+      autoAge: 'Automatischer Altersfilter',
+      autoAgeContent: 'Die Zeiträume werden dynamisch berechnet.',
+      eventIntel: 'EVENT INTEL',
+      event2024: 'Naturzone 23.–24.11.2024',
+      event2025: 'Naturzone 15.–16.11.2025',
+      pokemon: {
+        '003': 'Bisaflor',
+        '018': 'Tauboss',
+        '038': 'Alola-Vulnona',
+        '040': 'Knuddeluff',
+        '062': 'Quappo',
+        '076': 'Geowaz',
+        '078': 'Galar-Galoppa',
+        '110': 'Galar-Smogmog',
+        '130': 'Garados',
+        '149': 'Dragoran',
+        '160': 'Impergator',
+        '210': 'Granbull',
+        '229': 'Hundemon',
+        '248': 'Despotar',
+        '282': 'Guardevoir',
+        '303': 'Flunkifer',
+        '359': 'Absol',
+        '405': 'Luxtra',
+        '430': 'Kramshef',
+        '445': 'Knakrack',
+        '452': 'Toxiquak',
+        '461': 'Snibunna',
+        '466': 'Elevoltek',
+        '473': 'Mamutel',
+        '480': 'Selfe',
+        '481': 'Vesprit',
+        '482': 'Tobutz',
+        '545': 'Cerapendra',
+        '596': 'Voltula',
+        '604': 'Zapplarang',
+        '623': 'Golurk',
+        '697': 'Monargoras',
+        '748': 'Aggrostella',
+        '858': 'Silembrim',
+        '862': 'Barrikadax',
+        '908': 'Maskagato'
+      }
+    }
+  },
+  en: {
+    title: 'MIGHTY POKÉMON',
+    infoBtn: 'INFO',
+    backBtn: 'BACK',
+    copySuccess: '✓',
+    copyError: 'Copy failed',
+    infoText: {
+      usage: 'USAGE',
+      usageContent: 'Copy the search string from the text field or press the large button above to save it to your clipboard. Then paste the search string into the Pokémon GO search bar to find all mighty Pokémon in your collection.',
+      limitations: 'FOUNDATION',
+      limitationsContent: 'The Pokémon GO search bar only allows simple AND conjunctions (&) and does not support parentheses or OR logic (|). Each combination of Pokémon, form, and catch date must be listed individually.',
+      details: 'DETAILS',
+      dnf: 'Disjunctive Normal Form',
+      dnfContent: 'Each valid combination is listed individually.',
+      autoAge: 'Automatic Age Filter',
+      autoAgeContent: 'Time periods are calculated dynamically.',
+      eventIntel: 'EVENT INTEL',
+      event2024: 'Wild Area Nov 23–24, 2024',
+      event2025: 'Wild Area Nov 15–16, 2025',
+      pokemon: {
+        '003': 'Venusaur',
+        '018': 'Pidgeot',
+        '038': 'Alolan Ninetales',
+        '040': 'Wigglytuff',
+        '062': 'Poliwrath',
+        '076': 'Golem',
+        '078': 'Galarian Rapidash',
+        '110': 'Galarian Weezing',
+        '130': 'Gyarados',
+        '149': 'Dragonite',
+        '160': 'Feraligatr',
+        '210': 'Granbull',
+        '229': 'Houndoom',
+        '248': 'Tyranitar',
+        '282': 'Gardevoir',
+        '303': 'Mawile',
+        '359': 'Absol',
+        '405': 'Luxray',
+        '430': 'Honchkrow',
+        '445': 'Garchomp',
+        '452': 'Toxicroak',
+        '461': 'Weavile',
+        '466': 'Electivire',
+        '473': 'Mamoswine',
+        '480': 'Uxie',
+        '481': 'Mesprit',
+        '482': 'Azelf',
+        '545': 'Scolipede',
+        '596': 'Galvantula',
+        '604': 'Eelektross',
+        '623': 'Golurk',
+        '697': 'Tyrantrum',
+        '748': 'Toxapex',
+        '858': 'Hatterene',
+        '862': 'Obstagoon',
+        '908': 'Meowscarada'
+      }
+    }
+  }
+};
+
+// Language management
+let currentLang = 'de';
+
+function detectLanguage() {
+  const stored = localStorage.getItem('pokemon-lang');
+  if (stored && (stored === 'de' || stored === 'en')) return stored;
+  
+  const browserLang = navigator.language || navigator.userLanguage;
+  return browserLang.startsWith('de') ? 'de' : 'en';
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('pokemon-lang', lang);
+  updateUILanguage();
+  // Regenerate search string with correct age keyword
+  renderPreview();
+}
+
+function updateUILanguage() {
+  const t = TRANSLATIONS[currentLang];
+  
+  // Update clipboard button
+  const clipboardBtn = document.querySelector('.btn-clipboard');
+  if (clipboardBtn && clipboardBtn._origText !== '✓') {
+    clipboardBtn.innerText = t.title;
+    clipboardBtn._origText = t.title;
+  }
+  
+  // Update info button if not showing back
+  if (infoBtn && infoBtn.getAttribute('data-info-open') !== 'true') {
+    infoBtn.innerText = t.infoBtn;
+  }
+  
+  // Update language toggle button
+  const langToggle = document.getElementById('lang-toggle');
+  if (langToggle) {
+    langToggle.innerText = currentLang === 'de' ? 'EN' : 'DE';
+    langToggle.setAttribute('aria-label', currentLang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln');
+  }
+  
+  // Re-render if info is open
+  if (infoBtn && infoBtn.getAttribute('data-info-open') === 'true') {
+    output.value = getInfoText();
+    infoBtn.innerText = t.backBtn;
+  }
+}
+
+// Initialize language on load
+currentLang = detectLanguage();
+
 // Pokemon groups
 const G1='018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691';
 const G2='40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482';
@@ -1039,70 +1244,73 @@ function initMiniParticles(count = 10){
 /* Info text previously shown in the popover — now generated so it can include live ranges */
 function getInfoText(){
   const { range24, range25 } = buildRanges();
-  return `VERWENDUNG
+  const t = TRANSLATIONS[currentLang].infoText;
+  const p = t.pokemon;
+  
+  return `${t.usage}
 
-Kopiere den Suchstring aus dem Textfeld oder drücke den großen Knopf darüber, um ihn in deine Zwischenablage zu speichern. Füge den Suchstring dann in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deinem Besitz zu finden.
-
-
-GRUNDLAGE
-
-Die Suchleiste von Pokémon GO erlaubt nur einfache AND‑Verknüpfungen (&) und unterstützt weder Klammern noch OR‑Logik (|). Jede Kombination aus Pokémon, Form und Fangalter muss einzeln aufgeführt werden.
+${t.usageContent}
 
 
-DETAILS
+${t.limitations}
 
-Disjunktive Normalform
-Jede gültige Kombination wird einzeln gelistet.
-
-Automatischer Altersfilter
-Die Zeiträume werden dynamisch berechnet.
+${t.limitationsContent}
 
 
-EVENT INTEL
+${t.details}
 
-Naturzone 23.–24.11.2024
+${t.dnf}
+${t.dnfContent}
+
+${t.autoAge}
+${t.autoAgeContent}
+
+
+${t.eventIntel}
+
+${t.event2024}
 ` + range24 + `
 
-#003 Bisaflor
-#018 Tauboss
-#062 Quappo
-#076 Geowaz
-#130 Garados
-#149 Dragoran
-#160 Impergator
-#405 Luxtra
-#466 Elevoltek
-#473 Mamutel
-#545 Cerapendra
-#596 Voltula
-#604 Zapplarang
-#697 Monargoras
-#748 Aggrostella
+#003 ${p['003']}
+#018 ${p['018']}
+#062 ${p['062']}
+#076 ${p['076']}
+#130 ${p['130']}
+#149 ${p['149']}
+#160 ${p['160']}
+#405 ${p['405']}
+#466 ${p['466']}
+#473 ${p['473']}
+#545 ${p['545']}
+#596 ${p['596']}
+#604 ${p['604']}
+#697 ${p['697']}
+#748 ${p['748']}
 
-Naturzone 15.–16.11.2025
+${t.event2025}
 ` + range25 + `
 
-#040 Knuddeluff
-#078 Galar-Galoppa
-#110 Galar-Smogmog
-#038 Alola-Vulnona
-#248 Despotar
-#303 Flunkifer
-#359 Absol
-#623 Golurk
-#858 Silembrim
-#862 Barrikadax
-#908 Maskagato
-#210 Granbull
-#229 Hundemon
-#282 Guardevoir
-#430 Kramshef
-#445 Knakrack
-#452 Toxiquak
-#461 Snibunna
-#480 Selfe
-#481 Vesprit
-#482 Tobutz
+#040 ${p['040']}
+#078 ${p['078']}
+#110 ${p['110']}
+#038 ${p['038']}
+#248 ${p['248']}
+#303 ${p['303']}
+#359 ${p['359']}
+#623 ${p['623']}
+#858 ${p['858']}
+#862 ${p['862']}
+#908 ${p['908']}
+#210 ${p['210']}
+#229 ${p['229']}
+#282 ${p['282']}
+#430 ${p['430']}
+#445 ${p['445']}
+#452 ${p['452']}
+#461 ${p['461']}
+#480 ${p['480']}
+#481 ${p['481']}
+#482 ${p['482']}
 `;
 }
 
@@ -1112,12 +1320,13 @@ function daysSince(date){
 }
 
 function buildRanges(){
+  const ageKeyword = currentLang === 'de' ? 'alter' : 'age';
   const min24 = daysSince(EVENT24_END);
   const max24 = daysSince(EVENT24_START);
-  const r24 = `alter${min24}-${max24}`;
+  const r24 = `${ageKeyword}${min24}-${max24}`;
   const min25 = daysSince(EVENT25_END);
   const max25 = daysSince(EVENT25_START);
-  const r25 = `alter${min25}-${max25}`;
+  const r25 = `${ageKeyword}${min25}-${max25}`;
   return { range24: r24, range25: r25 };
 }
 
@@ -1138,10 +1347,11 @@ function renderPreview(){
   cachedString = searchString;
   output.value = cachedString;
   // if info was shown in the textarea, close that state and update the Info button label
+  const t = TRANSLATIONS[currentLang];
   try{
     if(infoBtn && infoBtn.getAttribute('data-info-open') === 'true'){
       infoBtn.setAttribute('data-info-open','false');
-      infoBtn.innerText = 'Info';
+      infoBtn.innerText = t.infoBtn;
     }
   }catch(e){}
   requestAnimationFrame(() => { if(output) output.scrollTop = 0; });
@@ -1186,6 +1396,7 @@ document.addEventListener('visibilitychange', () => !document.hidden && ResizeMa
 function toggleModeInfo(){
   if(!infoBtn || !output) return;
   const isOpen = infoBtn.getAttribute('data-info-open') === 'true';
+  const t = TRANSLATIONS[currentLang];
 
   if(!isOpen){
     _prevCachedString = cachedString;
@@ -1194,11 +1405,11 @@ function toggleModeInfo(){
     output.value = info;
     requestAnimationFrame(()=>{ if(output) output.scrollTop = 0; });
     infoBtn.setAttribute('data-info-open', 'true');
-    infoBtn.innerText = 'ZURÜCK';
+    infoBtn.innerText = t.backBtn;
     requestAnimationFrame(ResizeManager.updateBodyCentered);
   } else {
     infoBtn.setAttribute('data-info-open', 'false');
-    infoBtn.innerText = 'INFO';
+    infoBtn.innerText = t.infoBtn;
     if(_prevCachedString){
       cachedString = _prevCachedString;
       _prevCachedString = undefined;
@@ -1260,11 +1471,12 @@ function _setButtonState(btn, text, state){
 
 function copyAndNotify(btn){
   const button = btn || document.querySelector('.btn-clipboard');
+  const t = TRANSLATIONS[currentLang];
   navigator.clipboard.writeText(searchString || generateFinalString()).then(()=>{
     renderPreview();
-    _setButtonState(button, '✓', 'success');
+    _setButtonState(button, t.copySuccess, 'success');
   }, ()=>{
-    _setButtonState(button, 'Kopieren fehlgeschlagen', 'error');
+    _setButtonState(button, t.copyError, 'error');
   });
 }
 
@@ -1279,7 +1491,7 @@ const _attachUIListeners = ()=>{
       copyAndNotify(clipboardEl);
     });
   }
-    if(infoBtn){
+  if(infoBtn){
     infoBtn.addEventListener('click', (e)=>{
       // if Info view is currently open, play the back sound; otherwise play the info-open sound
       const isOpenNow = infoBtn.getAttribute('data-info-open') === 'true';
@@ -1291,9 +1503,20 @@ const _attachUIListeners = ()=>{
       toggleModeInfo();
     });
   }
+  
+  // Language toggle button
+  const langToggle = document.getElementById('lang-toggle');
+  if(langToggle){
+    langToggle.addEventListener('click', ()=>{
+      const newLang = currentLang === 'de' ? 'en' : 'de';
+      setLanguage(newLang);
+    });
+  }
 };
 
 _attachUIListeners();
+// Initialize UI language after listeners are attached
+updateUILanguage();
 
 
 // Update glow position to follow crown location
