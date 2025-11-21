@@ -1032,15 +1032,6 @@ function initMiniParticles(count = 10){
   miniParticles.init(count);
 }
 
-// Legacy function wrappers for backward compatibility
-function initParticles(count = 12){
-  globalParticles.init(count);
-}
-
-function initMiniParticles(count = 10){
-  miniParticles.init(count);
-}
-
 // NOTE: no global busy flag — button animations are reset on each click so
 // rapid clicks are allowed while the visual success state is kept until
 // the last timeout completes.
