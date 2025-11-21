@@ -1022,16 +1022,41 @@ function createAudio(src, vol = 0.2){
   const a = new Audio(src);
   a.preload = 'auto';
   a.volume = vol;
+  
+  // Unlock audio on first user interaction (mobile requirement)
+  let unlocked = false;
+  const unlock = () => {
+    if(unlocked) return;
+    a.play().then(() => {
+      a.pause();
+      a.currentTime = 0;
+      unlocked = true;
+    }).catch(() => {});
+  };
+  
+  // Attach unlock to common user events
+  document.addEventListener('touchstart', unlock, { once: true, passive: true });
+  document.addEventListener('click', unlock, { once: true, passive: true });
+  
   return {
     play(){
-      try{ a.pause(); a.currentTime = 0; a.play().catch(()=>{}); }catch(e){}
+      try{ 
+        a.currentTime = 0; 
+        // Mobile Safari requires synchronous play() in event handler
+        const promise = a.play();
+        if(promise) promise.catch(()=>{});
+      }catch(e){}
     }
   };
 }
 
-const _copyNav = createAudio('./copy_nav.opus', 0.03);
-const _infoNav = createAudio('./info_nav.opus', 0.03);
-const _backNav = createAudio('./back_nav.opus', 0.03);
+// Global audio volume multiplier (0.0 to 1.0)
+// Set lower if source files are mastered too loud
+const AUDIO_MASTER_VOLUME = 0.03; // Adjust this value for overall volume control
+
+const _copyNav = createAudio('./copy_nav.opus', 1.0 * AUDIO_MASTER_VOLUME);
+const _infoNav = createAudio('./info_nav.opus', 1.0 * AUDIO_MASTER_VOLUME);
+const _backNav = createAudio('./back_nav.opus', 1.0 * AUDIO_MASTER_VOLUME);
 
 function playCopyNavSound(){ _copyNav.play(); }
 function playInfoNavSound(){ _infoNav.play(); }
