@@ -1137,10 +1137,12 @@ function generateFinalString(){
 
 let cachedString = '';
 let _prevCachedString;
+let searchString = ''; // Always holds the actual search string for clipboard
 
 function renderPreview(){
   if(!output) return;
-  cachedString = generateFinalString();
+  searchString = generateFinalString();
+  cachedString = searchString;
   output.value = cachedString;
   // if info was shown in the textarea, close that state and update the Info button label
   try{
@@ -1265,7 +1267,7 @@ function _setButtonState(btn, text, state){
 
 function copyAndNotify(btn){
   const button = btn || document.querySelector('.btn-clipboard');
-  navigator.clipboard.writeText(cachedString || generateFinalString()).then(()=>{
+  navigator.clipboard.writeText(searchString || generateFinalString()).then(()=>{
     renderPreview();
     _setButtonState(button, '✓', 'success');
   }, ()=>{
