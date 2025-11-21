@@ -824,9 +824,9 @@ function createAudio(src, vol = 0.2){
   };
 }
 
-const _copyNav = createAudio('./copy_nav.opus', 0.2);
-const _infoNav = createAudio('./info_nav.opus', 0.2);
-const _backNav = createAudio('./back_nav.opus', 0.2);
+const _copyNav = createAudio('./copy_nav.opus', 0.03);
+const _infoNav = createAudio('./info_nav.opus', 0.03);
+const _backNav = createAudio('./back_nav.opus', 0.03);
 
 function playCopyNavSound(){ _copyNav.play(); }
 function playInfoNavSound(){ _infoNav.play(); }
