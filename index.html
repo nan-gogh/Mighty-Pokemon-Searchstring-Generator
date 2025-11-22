@@ -65,8 +65,14 @@
   --particles-opacity-peak: 1;
   --particles-travel-vh: 640vh;
   --bottom-pulse-height: 50vh;
-  --bottom-pulse-opacity: 0.5;
-  --bottom-pulse-duration: 3800ms;
+    --bottom-pulse-opacity: 0.5;
+    /* Keep a single source of truth for the header "bob" timing and reuse it
+      for the bottom pulse so both visuals stay in sync. Change this value
+      to alter the timing for both animations. */
+    --header-bob-duration: 4s;
+    --bottom-pulse-duration: var(--header-bob-duration);
+    /* Fade-from-black intro duration (seconds or ms via CSS variable parsing) */
+    --fade-duration: 700ms;
   --bottom-pulse-max: 100vh;
 }
 
@@ -150,6 +156,22 @@ textarea::selection, input::selection, select::selection{
 .grid-background::after{
   animation-delay: -4s;
   opacity: 0.5;
+}
+
+/* Fade-from-black overlay */
+#fade-overlay{
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 10050; /* above header and particles */
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity var(--fade-duration, 700ms) ease;
+}
+body.loaded #fade-overlay{ opacity: 0; }
+
+@media (prefers-reduced-motion: reduce){
+  #fade-overlay{ transition: none; opacity: 0; display: none; }
 }
 
 @keyframes grid-pulse{
@@ -271,7 +293,9 @@ header{
   z-index: 10003;
   --bob-offset: -6%;
   --svg-scale: 0.6;
-  animation: img-bob 4s ease-in-out infinite;
+  /* Use the shared header bob duration variable so the crown and bottom
+     pulse stay synchronized. */
+  animation: img-bob var(--header-bob-duration, 4s) ease-in-out infinite;
   filter: drop-shadow(0 0 10px var(--color-lime-bright)) drop-shadow(0 0 30px var(--lime-40));
 }
 
@@ -807,6 +831,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 </style>
 </head>
 <body>
+  <div id="fade-overlay" aria-hidden="true"></div>
   <button id="lang-toggle" aria-label="Switch language">DE</button>
   <div class="grid-background" aria-hidden="true"></div>
   <div class="bottom-pulse" aria-hidden="true"></div>
@@ -1779,6 +1804,45 @@ document.addEventListener('touchmove', function(e) {
   window.addEventListener('pointerdown', (ev) => {
     if(!isInteractive(ev.target)) clickEffects.emit(ev.clientX, ev.clientY);
   }, {passive:true});
+})();
+
+// Fade-from-black intro ---------------------------------------------------
+(function(){
+  const overlay = document.getElementById('fade-overlay');
+  if(!overlay) return;
+  // Respect prefers-reduced-motion: remove overlay immediately
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    try{ overlay.remove(); }catch(e){}
+    return;
+  }
+
+  // Parse CSS duration (--fade-duration). Return milliseconds.
+  function parseMs(val){
+    if(!val) return 700;
+    val = val.trim();
+    if(val.endsWith('ms')) return parseFloat(val) || 700;
+    if(val.endsWith('s')) return (parseFloat(val) || 0.7) * 1000;
+    return parseFloat(val) || 700;
+  }
+
+  const cs = getComputedStyle(document.documentElement);
+  const durMs = parseMs(cs.getPropertyValue('--fade-duration'));
+
+  function startFade(){
+    // Add a class so CSS transitions apply
+    document.body.classList.add('loaded');
+    // Remove overlay after transition completes
+    setTimeout(()=>{ try{ overlay.remove(); }catch(e){} }, durMs + 80);
+  }
+
+  // Prefer waiting for full load so visuals (images/fonts) don't pop in behind
+  if(document.readyState === 'complete'){
+    startFade();
+  } else {
+    window.addEventListener('load', startFade, { once: true });
+    // Safety fallback: if load takes too long, fade after 1.2s
+    setTimeout(()=>{ if(!document.body.classList.contains('loaded')) startFade(); }, 1200);
+  }
 })();
 </script>
 
