@@ -833,6 +833,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 const TRANSLATIONS = {
   de: {
     title: 'MÄCHTIGE POKÉMON',
+    pageTitle: 'Mächtiger Suchstring Generator',
     infoBtn: 'INFO',
     backBtn: 'ZURÜCK',
     copySuccess: '✓',
@@ -897,6 +898,7 @@ const TRANSLATIONS = {
   },
   en: {
     title: 'MIGHTY POKÉMON',
+    pageTitle: 'Mighty Searchstring Generator',
     infoBtn: 'INFO',
     backBtn: 'BACK',
     copySuccess: '✓',
@@ -1005,8 +1007,10 @@ function updateUILanguage() {
   // Update document language attribute and page title for accessibility
   try {
     document.documentElement.lang = currentLang;
-    // Use the translated title so the browser tab reflects the chosen language
-    if (t && t.title) document.title = t.title;
+    // Use a dedicated pageTitle when available so the browser tab shows a
+    // full localized page title separate from the compact UI title used in
+    // controls. Fall back to `title` for backwards compatibility.
+    if (t) document.title = t.pageTitle || t.title || document.title;
   } catch (e) {}
   // Re-render if info is open
   if (infoBtn && infoBtn.getAttribute('data-info-open') === 'true') {
