@@ -678,7 +678,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   /* use a solid, fully-opaque color for high visibility during testing */
   background: var(--lime-100);
   border-radius:50%;
-  /*filter: blur(var(--mini-blur, 0.5px));*/
+  filter: blur(var(--mini-blur, 0.1px));
   opacity:0; /* start invisible; animation will fade them in */
   transform: translateY(0) translateX(0) scale(1);
   will-change: transform, opacity, filter;
@@ -744,8 +744,8 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 
 @keyframes mini-particle-up{
   0%{ opacity: 0; transform: translateY(0px) translateX(0px) scale(0); }
-  5%{ opacity: 1; transform: translateY(0px) translateX(0px) scale(1); }
-  50%{ opacity: 1; transform: translateY(-2750%) translateX(0px) scale(2); }
+  5%{ opacity: 0.1; transform: translateY(0px) translateX(0px) scale(20); }
+  50%{ opacity: 0.5; transform: translateY(-2750%) translateX(0px) scale(2); }
   /* remain fully opaque for the majority of the animation for testing visibility */
   /*95%{ opacity: 1; transform: translateY(-2500%) translateX(0px) scale(0.35); }*/
   100%{ opacity: 0; transform: translateY(-3000%) translateX(0px) scale(0.3); }
@@ -1128,11 +1128,11 @@ class MiniParticles extends ParticleSystem {
   constructor(){
     // Use the existing HTML container `.mini-particles` and CSS class `.particle-mini`
     super('.mini-particles', '--mini-particle', 'particle-mini', {
-      count: 10,
+      count: 20,
       dur: 0.3,
       'size-min': 6,
       'size-max': 0,
-      'horizontal-spread-mult': 0.5,
+      'horizontal-spread-mult': 0.25,
       'vertical-spread-mult': 0.25,
       'jitter-x': 30,
       'jitter-y': 24,
