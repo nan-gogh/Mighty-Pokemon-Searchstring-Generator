@@ -663,7 +663,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   width:100%;
   height:100%;
   pointer-events:none;
-  z-index:10002; /* above crown (10001) */
+  z-index:10004; /* above crown (10001) */
   /* keep overflow visible so particles can escape upward beyond container */
   overflow:visible;
   /* ensure the container itself doesn't contribute to layout overflow */
@@ -674,13 +674,14 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   /* use a solid, fully-opaque color for high visibility during testing */
   background: var(--lime-100);
   border-radius:50%;
-  filter: blur(var(--mini-blur, 1px));
-  opacity:1; /* start fully opaque; keyframes will keep them visible until near the end */
+  /*filter: blur(var(--mini-blur, 0.5px));*/
+  opacity:0; /* start invisible; animation will fade them in */
   transform: translateY(0) translateX(0) scale(1);
   will-change: transform, opacity, filter;
   mix-blend-mode: screen;
   transition: opacity 120ms linear;
   animation: mini-particle-up var(--dur, 1s) linear infinite;
+  animation-fill-mode: both;
 }
 
 /* Click / touch pulse animation (spawn at pointer position) */
@@ -738,9 +739,9 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 }
 
 @keyframes mini-particle-up{
-  0%{ opacity: 0; transform: translateY(0) translateX(0) scale(0); }
-  5%{ opacity: 1; transform: translateY(0) translateX(0) scale(1); }
-  50%{ opacity: 1; transform: translateY(-2750) translateX(0) scale(2); }
+  0%{ opacity: 0; transform: translateY(0px) translateX(0px) scale(0); }
+  5%{ opacity: 1; transform: translateY(0px) translateX(0px) scale(1); }
+  50%{ opacity: 1; transform: translateY(-2750%) translateX(0px) scale(2); }
   /* remain fully opaque for the majority of the animation for testing visibility */
   /*95%{ opacity: 1; transform: translateY(-2500%) translateX(0px) scale(0.35); }*/
   100%{ opacity: 0; transform: translateY(-3000%) translateX(0px) scale(0.3); }
@@ -816,7 +817,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   <!--<h1>MÄCHTIGE POKÉMON</h1>-->
   <div class="header-actions">
     <div class="card">
-      <button class="btn-clipboard">MÄCHTIGE POKÉMON</button>
+        <button class="btn-clipboard">MIGHTY POKÉMON</button>
       <textarea id="output" readonly></textarea>
       <button id="mode-info-btn" class="btn">INFO</button>
     </div>
@@ -834,7 +835,7 @@ const TRANSLATIONS = {
     copyError: 'Kopieren fehlgeschlagen',
     infoText: {
       usage: 'VERWENDUNG',
-      usageContent: 'Kopiere den Suchstring manuell aus dem Textfeld oder drücke den großen Knopf darüber, um ihn in deine Zwischenablage zu speichern. Füge den Suchstring dann in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deinem Besitz zu finden.',
+      usageContent: 'Kopiere den Suchstring manuell aus dem Textfeld oder drücke den großen Knopf darüber, um ihn in deine Zwischenablage zu speichern. Füge den Suchstring dann in die Pokémon GO Suchleiste ein, um alle mächtigen Pokémon in deiner Pokémon Aufbewahrung zu finden. Es bietet sich an den Suchstring als Favorit zu speichern oder den gefundenen mächtigen Pokemon einen dedizierten Tag zuszuweisen, um sie zukünftig leichter wiederzufinden.',
       limitations: 'RATIONALE',
       limitationsContent: 'Die Suchleiste von Pokémon GO kennt keinen "mächtig" Suchbegriff und erlaubt nur simple AND‑Verknüpfungen (&) und OR-Logik (,). Fortgeschrittene Bedingungen, wie Klammern oder Verschachtelung sind nicht möglich. Um also alle mächtigen Pokémon in einer Aufbewahrung zu finden, muss jede Kombination aus Pokémon, Form und Fangalter einzeln aufgeführt werden. Zusätzlich dazu muss das Fangalter dynamisch berechnet werden, da sich die Event-Zeiträume, in denen mächtige Pokémon gefangen werden konnten, mit der Zeit verschieben.',
       details: 'DETAILS',
@@ -842,8 +843,11 @@ const TRANSLATIONS = {
       dnfContent: 'Jede gültige Kombination wird einzeln gelistet.',
       autoAge: 'Automatischer Altersfilter',
       autoAgeContent: 'Die Zeiträume werden dynamisch berechnet.',
+      remarks: 'ANMERKUNGEN',
+      precision: 'Genauigkeit',
+      precisionContent: 'Die Suchergebnisse sollten immer überprüft werden, da einige wenige Sonderfälle nicht ausgeschlossen werden können.',
       excluded: 'Ausschluss',
-      excludedContent: 'Getauschte Pokémon sind ausgeschlossen.',
+      excludedContent: 'Getauschte Pokémon sind vom Suchstring ausgeschlossen.',
       eventIntel: 'EVENT INTEL',
       event2024: 'Naturzone 23.–24.11.2024',
       event2025: 'Naturzone 15.–16.11.2025',
@@ -895,7 +899,7 @@ const TRANSLATIONS = {
     copyError: 'Copy failed',
     infoText: {
       usage: 'USAGE',
-      usageContent: 'Copy the search string from the text field manually or press the large button above to save it to your clipboard. Then paste the search string into the Pokémon GO search bar to find all mighty Pokémon in your collection.',
+      usageContent: 'Copy the search string from the text field manually or press the large button above to save it to your clipboard. Then paste the search string into the Pokémon GO search bar to find all mighty Pokémon in your Pokémon storage. Consider saving the search string as a favorite or assigning a dedicated tag to any mighty Pokémon you find so you can locate them more easily later.',
       limitations: 'RATIONALE',
       limitationsContent: 'The Pokémon GO search bar does not know a ‘mighty’ search keyword and only supports simple AND operators (&) and OR logic (,). Advanced conditions such as parentheses or nesting are not possible. Therefore, to find all mighty Pokémon in storage, every combination of Pokémon, form, and catch age has to be listed individually. Additionally, the catch age must be calculated dynamically, since the event time periods during which mighty Pokémon could be caught shift over time.',
       details: 'DETAILS',
@@ -903,8 +907,11 @@ const TRANSLATIONS = {
       dnfContent: 'Each valid combination is listed individually.',
       autoAge: 'Automatic Age Filter',
       autoAgeContent: 'Time periods are calculated dynamically.',
+      remarks: 'REMARKS',
+      precision: 'Precision',
+      precisionContent: 'Search results should always be verified, as some rare edge cases cannot be excluded.',
       excluded: 'Exclusion',
-      excludedContent: 'Traded Pokémon are excluded.',
+      excludedContent: 'Traded Pokémon are excluded from the searchstring.',
       eventIntel: 'EVENT INTEL',
       event2024: 'Wild Area Nov 23–24, 2024',
       event2025: 'Wild Area Nov 15–16, 2025',
@@ -1003,23 +1010,23 @@ currentLang = detectLanguage();
 
 // Pokemon groups
 // Megastring template with placeholders for dynamic ranges and localized terms
-const MEGASTRING_TEMPLATE = `40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,alter[range2024]&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,alter[range2024]&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,alter[range2024]&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,alter[range2024]&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,alter[range2024]&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,alter[range2024]&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,alter[range2024]&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,alter[range2024]&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,3*,4*&alter[range2025],018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&alter[range2025],alter[range2024]&alter[range2025],wp1500-&alter[range2025],!getauscht&alter[range2025],xl,xxl&alter[range2025],3*,4*&wp1500-,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&wp1500-,alter[range2024]&wp1500-&wp1500-,!getauscht&wp1500-,xl,xxl&wp1500-,3*,4*&!getauscht,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&!getauscht,alter[range2024]&!getauscht,wp1500-&!getauscht&!getauscht,xl,xxl&!getauscht,3*,4*&xl,xxl,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&xl,xxl,alter[range2024]&xl,xxl,wp1500-&xl,xxl,!getauscht&xl,xxl&xl,xxl,3*,4*&3*,4*,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&3*,4*,alter[range2024]&3*,4*,wp1500-&3*,4*,!getauscht&3*,4*,xl,xxl&3*,4*`;
+const MEGASTRING_TEMPLATE = `40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,alter2024&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,78,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,alter2024&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,38,galar,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,alter2024&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,78,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,alter2024&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,110,alola,galar,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,alter2024&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,78,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,alter2024&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,38,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,alter2024&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,78,3*,4*&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,alter2024&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,wp1500-&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,!getauscht&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,xl,xxl&40,248,303,359,623,858,862,908,210,229,282,430,445,452,461,480-482,galar,alola,3*,4*&alter2025,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&alter2025,alter2024&alter2025,wp1500-&alter2025,!getauscht&alter2025,xl,xxl&alter2025,3*,4*&wp1500-,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&wp1500-,alter2024&wp1500-&wp1500-,!getauscht&wp1500-,xl,xxl&wp1500-,3*,4*&!getauscht,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&!getauscht,alter2024&!getauscht,wp1500-&!getauscht&!getauscht,xl,xxl&!getauscht,3*,4*&xl,xxl,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&xl,xxl,alter2024&xl,xxl,wp1500-&xl,xxl,!getauscht&xl,xxl&xl,xxl,3*,4*&3*,4*,018,076,130,405,545,596,697,748,003,062,149,160,466,473,604,691&3*,4*,alter2024&3*,4*,wp1500-&3*,4*,!getauscht&3*,4*,xl,xxl&3*,4*`;
 
 function generateTemplate(r24, r25){
   const lang = currentLang || 'de';
   
   // Language-specific replacements
   const ageKeyword = lang === 'de' ? 'alter' : 'age';
-  const tradedKeyword = lang === 'de' ? '!getauscht' : '!traded';
+  const tradedKeyword = lang === 'de' ? 'getauscht' : 'traded';
   const cpKeyword = lang === 'de' ? 'wp' : 'cp';
   
   // Replace placeholders in the megastring
   let result = MEGASTRING_TEMPLATE
-    .replace(/alter\[range2024\]/g, r24)
-    .replace(/alter\[range2025\]/g, r25)
+    .replace(/alter2024/g, r24)
+    .replace(/alter2025/g, r25)
     .replace(/alter/g, ageKeyword)
-    .replace(/!getauscht/g, tradedKeyword)
-    .replace(/wp1500-/g, `${cpKeyword}1500-`);
+    .replace(/getauscht/g, tradedKeyword)
+    .replace(/wp/g, `${cpKeyword}`);
   
   return result;
 }
@@ -1117,11 +1124,12 @@ class MiniParticles extends ParticleSystem {
   constructor(){
     // Use the existing HTML container `.mini-particles` and CSS class `.particle-mini`
     super('.mini-particles', '--mini-particle', 'particle-mini', {
+      count: 10,
       dur: 0.3,
       'size-min': 6,
       'size-max': 0,
-      'horizontal-spread-mult': 0.75,
-      'vertical-spread-mult': 0.5,
+      'horizontal-spread-mult': 0.5,
+      'vertical-spread-mult': 0.25,
       'jitter-x': 30,
       'jitter-y': 24,
       'spawn-down-ratio': 0.06,
@@ -1181,7 +1189,9 @@ class MiniParticles extends ParticleSystem {
         p.style.top = Math.min(100, Math.max(0, yPct)).toFixed(4) + '%';
         p.style.width = size + 'px';
         p.style.height = size + 'px';
-        p.style.setProperty('animation-delay', ((Math.random() * 0.6) - 0.3) + 's');
+        // Use a non-negative delay so particles never start mid-cycle
+        // which avoids visual snapping when appended.
+        p.style.setProperty('animation-delay', (Math.random() * 0.6) + 's');
 
         // Now the particle has valid placement; append and wire the iteration handler.
         p.addEventListener('animationiteration', tryPlace);
@@ -1200,7 +1210,8 @@ class MiniParticles extends ParticleSystem {
             p.style.top = fallbackY + '%';
             p.style.width = Math.max(4, cfg['size-min']) + 'px';
             p.style.height = Math.max(4, cfg['size-min']) + 'px';
-            p.style.setProperty('animation-delay', ((Math.random() * 0.6) - 0.3) + 's');
+            // Fallback uses a small non-negative random delay as well.
+            p.style.setProperty('animation-delay', (Math.random() * 0.6) + 's');
             p.addEventListener('animationiteration', tryPlace);
             this.container.appendChild(p);
           }catch(_){}
@@ -1280,11 +1291,15 @@ const globalParticles = new GlobalParticles();
 const miniParticles = new MiniParticles();
 
 // Legacy function wrappers for backward compatibility
-function initParticles(count = 12){
+function initParticles(count){
+  // If `count` is undefined, `ParticleSystem.init` will fall back to the
+  // class-configured `count` (set in each subclass constructor).
   globalParticles.init(count);
 }
 
-function initMiniParticles(count = 10){
+function initMiniParticles(count){
+  // If `count` is undefined, `ParticleSystem.init` will fall back to the
+  // class-configured `count` (set in each subclass constructor).
   miniParticles.init(count);
 }
 
@@ -1315,6 +1330,12 @@ ${t.dnfContent}
 
 ${t.autoAge}
 ${t.autoAgeContent}
+
+
+${t.remarks}
+
+${t.precision}
+${t.precisionContent}
 
 ${t.excluded}
 ${t.excludedContent}
@@ -1441,8 +1462,8 @@ const ResizeManager = {
   },
   
   updateParticlesAndGlow() {
-    initParticles(12);
-    initMiniParticles(10);
+    initParticles();
+    initMiniParticles();
   }
 };
 
@@ -1587,9 +1608,9 @@ scheduleMidnightUpdate();
 // Initialize energy particles first for optimal visual layering
 energyParticles.init();
 // initialize particles after rendering so header sizes are known
-initParticles(12);
+initParticles();
 // initialize mini particles (inside header) after main particles
-initMiniParticles(10)
+initMiniParticles()
 // Phase 8: Debounced resize handlers using ResizeManager
 let _resizeTimer;
 const debounceResize = (fn, delay) => () => {
