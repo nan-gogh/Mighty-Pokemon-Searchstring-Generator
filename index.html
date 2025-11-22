@@ -1002,6 +1002,12 @@ function updateUILanguage() {
     langToggle.setAttribute('aria-label', currentLang === 'de' ? 'Switch to English' : 'Zu Deutsch wechseln');
   }
   
+  // Update document language attribute and page title for accessibility
+  try {
+    document.documentElement.lang = currentLang;
+    // Use the translated title so the browser tab reflects the chosen language
+    if (t && t.title) document.title = t.title;
+  } catch (e) {}
   // Re-render if info is open
   if (infoBtn && infoBtn.getAttribute('data-info-open') === 'true') {
     output.value = getInfoText();
