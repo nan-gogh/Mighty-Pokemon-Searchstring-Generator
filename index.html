@@ -104,6 +104,36 @@ textarea::selection, input::selection, select::selection{
   animation: bottom-pulse-anim var(--bottom-pulse-duration, 3800ms) ease-in-out infinite;
 }
 
+/* Opening (scroll-unroll) animation: initial collapsed state when
+   `body.opening` is present. Removing the class triggers transitions
+   that animate the card "unrolling" and the info button sliding down. */
+.card{
+  /* allow a transform transition so unroll animates smoothly */
+  transition: transform 820ms cubic-bezier(.2,.9,.2,1), max-height var(--transition-smooth);
+  transform-origin: top center;
+}
+#mode-info-btn{
+  transition: transform 820ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* Collapsed initial state: card squashed into the clipboard button and
+   info button positioned near the clipboard. Removing `body.opening` will
+   animate these properties back to their normal values, producing a
+   scroll-unroll effect. */
+body.opening .card{
+  transform: scaleY(0.12) translateZ(0);
+}
+body.opening #mode-info-btn{
+  /* Move the info button up so it sits under the clipboard button */
+  transform: translateY(-160%);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .card, #mode-info-btn{ transition: none; }
+  body.opening .card{ transform: none; }
+  body.opening #mode-info-btn{ transform: var(--anchor); }
+}
+
 @keyframes bottom-pulse-anim{
   0%{ height: var(--bottom-pulse-height, 50vh); opacity: 0.25; }
   /*20%{ height: calc(var(--bottom-pulse-max, 50vh) * 0.5); opacity: calc(var(--bottom-pulse-opacity, 0.14) * 0.5); }*/
@@ -116,46 +146,34 @@ textarea::selection, input::selection, select::selection{
   .bottom-pulse{ animation: none; opacity: var(--bottom-pulse-opacity, 0.14); height: var(--bottom-pulse-height, 50vh); }
 }
 
-/* Animated diagonal grid background */
+/* Animated horizontal wave background (ocean waves moving upward) */
 .grid-background{
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
-  opacity: 0.15;
+  opacity: 0.18;
 }
 
 .grid-background::before,
 .grid-background::after{
   content: "";
   position: absolute;
-  inset: -50%;
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 40px,
-      var(--color-teal-primary) 40px,
-      var(--color-teal-primary) 41px,
-      transparent 41px,
-      transparent 80px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 40px,
-      var(--color-lime-bright) 40px,
-      var(--color-lime-bright) 41px,
-      transparent 41px,
-      transparent 80px
-    );
-  animation: grid-pulse 8s ease-in-out infinite;
+  left: 0;
+  right: 0;
+  bottom: -160px;
+  height: 200vh;
+  /* SVG-based sine wave pattern that tiles horizontally */
+  background-image: url('data:image/svg+xml;utf8,<svg width="200" height="160" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:rgb(255,191,0);stop-opacity:0.7" /><stop offset="100%" style="stop-color:rgb(255,237,78);stop-opacity:0.7" /></linearGradient></defs><path d="M -50 80 Q -25 60, 0 80 T 50 80 T 100 80 T 150 80 T 200 80 T 250 80" stroke="url(%23g1)" stroke-width="3" fill="none" vector-effect="non-scaling-stroke"/><path d="M -50 100 Q -25 80, 0 100 T 50 100 T 100 100 T 150 100 T 200 100 T 250 100" stroke="url(%23g1)" stroke-width="2" fill="none" opacity="0.6" vector-effect="non-scaling-stroke"/><path d="M -50 120 Q -25 100, 0 120 T 50 120 T 100 120 T 150 120 T 200 120 T 250 120" stroke="url(%23g1)" stroke-width="1.5" fill="none" opacity="0.4" vector-effect="non-scaling-stroke"/></svg>');
+  background-size: 200px 160px;
+  background-repeat: repeat;
+  animation: waves-rise 12s linear infinite;
 }
 
 .grid-background::after{
-  animation-delay: -4s;
-  opacity: 0.5;
+  animation-delay: -6s;
+  opacity: 0.7;
 }
 
 /* Fade-from-black overlay */
@@ -174,34 +192,16 @@ body.loaded #fade-overlay{ opacity: 0; }
   #fade-overlay{ transition: none; opacity: 0; display: none; }
 }
 
-@keyframes grid-pulse{
-  0%, 100%{ opacity: 0.3; transform: scale(1); }
-  50%{ opacity: 0.6; transform: scale(1.05); }
-}
-
-/* Quick glitch effect applied when user toggles language */
-.grid-background.glitch::before,
-.grid-background.glitch::after{
-  animation: grid-pulse 8s ease-in-out infinite, bg-glitch 520ms steps(6, end) 1;
-  filter: hue-rotate(8deg) saturate(1.15);
-}
-
-@keyframes bg-glitch{
-  0% { transform: translateX(0) translateY(0) scale(1); clip-path: inset(0 0 0 0); }
-  10% { transform: translateX(-6px) translateY(-2px) scale(1.02); clip-path: inset(4% 0 0 0); }
-  20% { transform: translateX(8px) translateY(3px) scale(0.99); clip-path: inset(0 6% 0 0); }
-  30% { transform: translateX(-4px) translateY(2px) scale(1.01); clip-path: inset(0 0 6% 0); }
-  45% { transform: translateX(6px) translateY(-3px) scale(1); clip-path: inset(6% 0 0 0); }
-  60% { transform: translateX(-8px) translateY(1px) scale(1.02); clip-path: inset(0 0 0 8%); }
-  80% { transform: translateX(2px) translateY(-1px) scale(1); clip-path: inset(0 0 0 0); }
-  100% { transform: translateX(0) translateY(0) scale(1); clip-path: inset(0 0 0 0); }
+@keyframes waves-rise{
+  0%{ transform: translateY(0); }
+  100%{ transform: translateY(-160px); }
 }
 
 @media (prefers-reduced-motion: reduce){
   .grid-background::before,
   .grid-background::after{
     animation: none;
-    opacity: 0.4;
+    opacity: 0.3;
   }
 }
 
@@ -830,7 +830,7 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 }
 </style>
 </head>
-<body>
+<body class="opening">
   <div id="fade-overlay" aria-hidden="true"></div>
   <button id="lang-toggle" aria-label="Switch language">DE</button>
   <div class="grid-background" aria-hidden="true"></div>
@@ -1620,17 +1620,8 @@ const _attachUIListeners = ()=>{
   const langToggle = document.getElementById('lang-toggle');
   if(langToggle){
     langToggle.addEventListener('click', ()=>{
-      // play language switch SFX, trigger a short background glitch, then toggle language
+      // play language switch SFX and toggle language
       try{ playLangNavSound(); }catch(e){}
-      const bg = document.querySelector('.grid-background');
-      if(bg){
-        // restart class to retrigger animation
-        bg.classList.remove('glitch');
-        void bg.offsetWidth;
-        bg.classList.add('glitch');
-        // remove the class after the effect finishes
-        setTimeout(()=>{ try{ bg.classList.remove('glitch'); }catch(e){} }, 600);
-      }
       const newLang = currentLang === 'de' ? 'en' : 'de';
       setLanguage(newLang);
     });
@@ -1829,10 +1820,16 @@ document.addEventListener('touchmove', function(e) {
   const durMs = parseMs(cs.getPropertyValue('--fade-duration'));
 
   function startFade(){
-    // Add a class so CSS transitions apply
-    document.body.classList.add('loaded');
-    // Remove overlay after transition completes
-    setTimeout(()=>{ try{ overlay.remove(); }catch(e){} }, durMs + 80);
+    // Remove the initial collapsed state to trigger the unroll animation,
+    // then start the overlay fade. If the `opening` class wasn't present
+    // (older loads), removing it is a no-op.
+    requestAnimationFrame(()=>{
+      document.body.classList.remove('opening');
+      // start overlay fade
+      document.body.classList.add('loaded');
+      // Remove overlay after transition completes
+      setTimeout(()=>{ try{ overlay.remove(); }catch(e){} }, durMs + 80);
+    });
   }
 
   // Prefer waiting for full load so visuals (images/fonts) don't pop in behind
