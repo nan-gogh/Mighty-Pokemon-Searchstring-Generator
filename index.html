@@ -741,12 +741,12 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
 
 /* Click burst particles (short-lived radial burst atop the pulse) */
 :root{
-  --click-burst-count: 12;
+  --click-burst-count: 6;
   --click-burst-size-min: 4px;
   --click-burst-size-max: 10px;
-  --click-burst-radius-min: 24px;
-  --click-burst-radius-max: 96px;
-  --click-burst-duration: 520ms;
+  --click-burst-radius-min: 3px;
+  --click-burst-radius-max: 12px;
+  --click-burst-duration: 1040ms;
 }
 .click-burst-particle{
   z-index:10004;
@@ -756,14 +756,15 @@ textarea::-webkit-scrollbar{ width:0; height:0; }
   background: radial-gradient(circle at 40% 30%, var(--lime-95) 0%, var(--lime-55) 30%, rgba(255,191,0,0) 80%);
   opacity: 1;
   will-change: transform, opacity;
+  filter: blur(1.5px);
   mix-blend-mode: screen;
   animation: burst-fly var(--click-burst-duration, 520ms) cubic-bezier(.2,.8,.2,1) forwards;
 }
 
 @keyframes burst-fly{
-  0%{ opacity: 1; transform: translate3d(0,0,0) scale(0); }
-  /*50%{ opacity: 1; transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) scale(0.6); }*/
-  100%{ opacity: 0; transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) scale(1); }
+  0%{ opacity: 0; transform: translate3d(var(--start-x, 0px), var(--start-y, 0px), 0) scale(0.2); }
+  15%{ opacity: 0.5; transform: translate3d(var(--start-x, 0px), var(--start-y, 0px), 0) scale(2); }
+  100%{ opacity: 1; transform: translate3d(var(--start-x, 0px), var(--end-y, 0px), 0) scale(0); }
 }
 
 @keyframes mini-particle-up{
@@ -1717,7 +1718,7 @@ document.addEventListener('touchmove', function(e) {
     burst(x, y) {
       try {
         const cfg = CSS.getConfig('--click-burst', {
-          count: 12, 'size-min': 4, 'size-max': 10, 'radius-min': 24, 'radius-max': 96
+          count: 6, 'size-min': 4, 'size-max': 10, 'radius-min': 24, 'radius-max': 96
         });
         const dur = CSS.str('--click-burst-duration', '520ms');
         for(let i=0; i<cfg.count; i++) {
@@ -1728,10 +1729,16 @@ document.addEventListener('touchmove', function(e) {
           p.style.height = size + 'px';
           p.style.left = (x - size/2) + 'px';
           p.style.top = (y - size/2) + 'px';
-          const angle = Math.random() * Math.PI * 2;
-          const dist = cfg['radius-min'] + Math.random() * (cfg['radius-max'] - cfg['radius-min']);
-          p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
-          p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+          // Circular spawn positions using both sin and cos
+          const angle = (Math.PI * 2 * i) / cfg.count + (Math.random() - 0.5) * 0.3;
+          const spreadRadius = cfg['radius-min'] + Math.random() * (cfg['radius-max'] - cfg['radius-min']);
+          const startX = Math.cos(angle) * spreadRadius;
+          const startY = Math.sin(angle) * spreadRadius;
+          const travelDistance = cfg['radius-max'] * 8 + Math.random() * cfg['radius-max'];
+          const endY = startY - travelDistance;
+          p.style.setProperty('--start-x', startX + 'px');
+          p.style.setProperty('--start-y', startY + 'px');
+          p.style.setProperty('--end-y', endY + 'px');
           p.style.animation = `burst-fly ${dur} cubic-bezier(.2,.8,.2,1) forwards`;
           document.body.appendChild(p);
           p.addEventListener('animationend', () => p.remove());
